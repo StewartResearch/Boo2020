@@ -519,7 +519,7 @@ CM_Fire = CM$all.data$PROP_BURN[(1940-1917+1):length(CM$all.data$PROP_BURN)] # f
 CM_Fire_mean = mean(CM$all.data$PROP_BURN[(1940-1917+1):length(CM$all.data$PROP_BURN)]) # mean annual porportion burned from 1940 onwards
 CM_Fire_sd = sd(CM$all.data$PROP_BURN[(1940-1917+1):length(CM$all.data$PROP_BURN)]) # sd annual porportion burned from 1940 onwards
 BetaMomentEst(CM_Fire)
-
+#############################################################################################################################################
 
 
 # repeating Table 2
@@ -547,22 +547,23 @@ Caribou(K = 500, WSA$p50s, WSA$hoof, 902)
 # # after some help from Ceres we decided that Pop needs to be a vector, length 2, of the number of juveniles and adults in the population
 
 # Test:
-Pop<-c(180, 722) # for a population of 902 assumes 20% of herd is calves.
-#TODO: See what the assumed ratio of cows: calves are here, as this specifies the Pop vector
+Pop<-c(722, 180) #adults, juveniles
+# for a population of 902 assumes 20% of herd is calves.
+# TODO: Ask Steve what the assumed ratio of cows: calves are here, as this specifies the Pop vector
 #Pop<-c(0, 902) # for a population of 902 - not sure if it should be this line or the line above.
-# we need to only be using data from 1940 onwards in all our functions
-cp <- as.numeric(names(IND = WSA$all.data$HOOF[cp]))>1939
 
-WSACaribou<-Caribou_F(K = 902, p50s = WSA$all.data$PROP_BURN[cp], hoof = WSA$all.data$HOOF[cp], Pop = c(611, 921)) #adults, juveniles
-#Works!
-## TODO: Ask Steve/Josh what K means here
+#Subset all entries so that they only include entries later than 1939
+
+WSACaribou<-Caribou_F(K = 902, p50s = WSA$all.data$PROP_BURN[(1940-1917+1):length(WSA$all.data$PROP_BURN)], hoof = WSA$all.data$HOOF[(1940-1917 +1):length(WSA$all.data$HOOF)], Pop) 
 
 # enter herd area size as one number in km^2
 # enter the mean and sd of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
 ## TODO: Ask Steve/Josh what IND means here
 ### Ind needs to be a vector of length 2, if I am going to use the old code.
-### otherwise it ends up being a the same value twice, if I am using the new code. See doce.
-WSAScenarios<- ScenarioS_F(WSA$all.data$AREA[1]/100, WSA_Regime, IND = WSA$all.data$HOOF[cp])
+### otherwise it ends up being a the same value twice, if I am using the new code. 
+WSA_Regime<-WSA_Fire
+WSAScenarios<- ScenarioS_F(WSA$all.data$AREA[1]/100, WSA_Regime, IND = WSA$all.data$HOOF[(1940-1917 +1):length(WSA$all.data$HOOF)])
+
 
 WSAruns<-MCRUNS_F(WSA$all.data$AREA[1]/100, WSA_Regime)
 # I turned off mmp...
@@ -570,4 +571,15 @@ WSAruns<-MCRUNS_F(WSA$all.data$AREA[1]/100, WSA_Regime)
 ### I'm assuming this has to do with environmental stochasticity?
 # ok, that worked, althought I dont understand the values
 
+# TODO: Ask Steve how he got his logic.gz files. I'll need to do this for all populations so that I can re-make the figures
+
+
+
+# WSA
+#Example TODO: change this to the correct code.
+Pop<-c(180, 722)
+cp <- as.numeric(names(IND = WSA$all.data$HOOF[cp]))>1939
+WSACaribou<-Caribou_F(K = 902, p50s = WSA$all.data$PROP_BURN[cp], hoof = WSA$all.data$HOOF[cp], Pop = c(611, 921)) #adults, juveniles
+WSAScenarios<- ScenarioS_F(WSA$all.data$AREA[1]/100, WSA_Regime, IND = WSA$all.data$HOOF[cp])
+WSAruns<-MCRUNS_F(WSA$all.data$AREA[1]/100, WSA_Regime)
 
