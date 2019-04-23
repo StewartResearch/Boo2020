@@ -1,4 +1,4 @@
-MCRUNS_F<-function (Area, Regime, IND = 50, CF = 1, Density = 0.04, #mmp = 5, 
+MCRUNS_F<-function (Area, Regime, IND = 50, CF = 1, Density = 0.06, #mmp = 5, 
                     Reps = 300) 
   # TODO: Ask Steve: IS MMP a pseudo extinction threshold?
   # removed for now

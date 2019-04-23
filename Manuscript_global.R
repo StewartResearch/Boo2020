@@ -10,7 +10,7 @@ setwd("Z:/Publications/Nowak et al/data")
 # load(file = "WSA_logic_runs.gz")
 #########################################
 # Set working directory for export of files you will create
-setwd("Z:/Publications/Nowak et al/outputs")
+setwd("Z:/GitHub/Boo2019/outputs")
 
 #Run the following code to re-make Steve's SCB presentation graphs:
 ############################################
@@ -143,10 +143,35 @@ pLambda(logic.wsamc, "WSA Mean Lambda")
 dev.off()
 #########################################
 # Frances additions
+pLambda<-function(Herd, Title = ""){      #plot mean Lambda  Example:  pLambda(clawrmc, "CLAWR")
+  Lamb.CI <- apply(Herd$Lambda, 2, function(x){
+    c(quantile(x,0.05),  mean(x), quantile(x, 0.95))
+  })
+  PP<-function(x = Lambda){
+    Y1<-1837
+    x0<-seq(1,100)
+    plot(x = 0, y = 0,
+         xlim=c(1,ncol(x))+Y1,ylim=range(x),
+         xlab="", ylab="",
+         cex.axis = 1.2)
+    polygon(c(x0+Y1, rev(x0+Y1)), c(x[1,x0], rev(x[3,x0])), col = "lightgray")
+    lines((x0+Y1),x[2,x0], type="l",lwd=3, col = "black")
+    x1<-seq(100,170)
+    polygon(c(x1+Y1, rev(x1+Y1)), c(x[1,x1], rev(x[3,x1])), col = "cornflowerblue")
+    lines(x1+Y1,x[2,x1],col="darkblue",lwd=3)
+    x2<-seq(170,ncol(x))
+    polygon(c(x2+Y1, rev(x2+Y1)), c(x[1,x2], rev(x[3,x2])), col = "brown1")
+    lines(x2+Y1,x[2,x2],col="darkred",lwd=3)
+  }
+  PP(Lamb.CI)
+  title(main = Title, xlab = "Year", ylab = "Lambda",
+        font.main = 2, font.lab = 4,
+        col.main = "black", col.lab = "black",
+        cex.lab = 1.3, cex.main = 1.4)
+}
 
-# I need to first generate the logic.#### files before continuing.
-# I might have to re-do this, and the MCRUNS function currently has density set to 0.04!
-# currently the MCRUNS and ScenarioS functions are not working for me...
+#plotting
+pLambda(WSAruns, "WSA Mean Lambda") # Working
 
 
 ################################################################################
@@ -181,6 +206,34 @@ ExtProb(logic.lsmc, "LS Extinction Probability")
 ExtProb(logic.wsamc, "WSA Extinction Probability")
 dev.off()
 
+#########################################
+# Frances additions
+ExtProb<-function(Herd, Title = ""){       #plot extinction probability ExtProb(clawrmc, "CLAWR Pr(Extinction)")
+  
+  PP<-function(x){
+    Y1<-1837
+    x0<-seq(1,100)
+    plot((x0+Y1),x[x0],type="l",lwd=3,
+         xlim=c(1,length(x))+Y1,ylim=c(0,1),
+         xlab = "", ylab = "",
+         cex.axis = 1.2)
+    x1<-seq(101,170)
+    lines(x1+Y1,x[x1],col="blue",lwd=3)
+    x2<-seq(171,length(x))
+    lines(x2+Y1,x[x2],col="red",lwd=3)
+  }
+  
+  
+  PP(apply(Herd$Nt,2,function(x, N = 10)
+    sum(x<10)/length(x)))  #Extinction Probability
+  title(main = Title, xlab = "Year", ylab = "Prob. of Extinction",
+        font.main = 2, font.lab = 4,
+        col.main = "black", col.lab = "black",
+        cex.lab = 1.3, cex.main = 1.4)
+}
+
+#plot
+ExtProb(WSAScenarios, "WSA Extinction Probability") # TODO: NOT CURRENTLY WORKING
 
 ################################################################################
 # 5)  Mean Herd Size
@@ -222,6 +275,42 @@ MeanHerd(logic.lsmc, "LS Mean Herd Size")
 MeanHerd(logic.wsamc, "WSA Mean Herd Size")
 dev.off()
 
+
+#########################################
+# Frances additions
+MeanHerd<-function(Herd, Title = ""){ #plot mean herd size   MeanHerd(clawrmc, "CLAWR Mean Herd Size")
+  
+  
+  MH.CI <- apply(Herd$Nt, 2, function(x){
+    c(quantile(x,0.05),  mean(x), quantile(x, 0.95))
+  })
+  PP<-function(x = MH.CI){
+    Y1<-1837
+    x0<-seq(1,100)
+    plot(x = 0, y = 0,
+         xlim=c(1,ncol(x))+Y1,ylim=range(x),
+         xlab="", ylab="",
+         cex.axis = 1.2)
+    polygon(c(x0+Y1, rev(x0+Y1)), c(x[1,x0], rev(x[3,x0])), col = "lightgray")
+    lines((x0+Y1),x[2,x0], type="l",lwd=3, col = "black")
+    x1<-seq(100,170)
+    polygon(c(x1+Y1, rev(x1+Y1)), c(x[1,x1], rev(x[3,x1])), col = "cornflowerblue")
+    lines(x1+Y1,x[2,x1],col="darkblue",lwd=3)
+    x2<-seq(170,ncol(x))
+    polygon(c(x2+Y1, rev(x2+Y1)), c(x[1,x2], rev(x[3,x2])), col = "brown1")
+    lines(x2+Y1,x[2,x2],col="darkred",lwd=3)
+  }
+  PP(MH.CI)
+  
+  
+  title(main = Title, xlab = "Year", ylab = "Mean N(females)",
+        font.main = 2, font.lab = 4,
+        col.main = "black", col.lab = "black",
+        cex.lab = 1.3, cex.main = 1.4)
+}
+
+#plot
+MeanHerd(WSAScenarios, "WSA Mean Herd Size") #TODO: Not currently working
 
 ################################################################################
 # 6)  Difference in Extimction Prob between expert guess and current fire regime
@@ -273,7 +362,13 @@ legend(x = 2010, y = 1, pch = c(15, 15, NA, NA, NA, NA), lty = c(NA, NA, 5,3,1,1
                   "Proportion of forest < 50 years old",
                   "Proportion of forest < 50 years old"))
 
+#########################################
+# Frances additions
+# Still TODO
 
+
+
+###########################################################################################################################################
 ###########################################################################################################################################
 #Eliot Putsing Fire Growth Model
 
@@ -534,7 +629,7 @@ max(WSA$all.data$YEAR) #2008
 length(WSA$hoof) # 92
 # not sure where the pop values are supposed to come from...
 # will try initializing with the estimated inital population (ie. at 1940 - hen p50s start)
-Caribou(K = 500, WSA$p50s, WSA$hoof, 902)
+# Caribou(K = 500, WSA$p50s, WSA$hoof, 902)
 # and I get the error: "Error in V %*% P : non-conformable arguments"
 # As of right now I do not have any information on V (or "a data frame named vital", or P)
 # I'm assuming that P is the population size, and V are the vital rates?
@@ -565,21 +660,23 @@ WSA_Regime<-WSA_Fire
 WSAScenarios<- ScenarioS_F(WSA$all.data$AREA[1]/100, WSA_Regime, IND = WSA$all.data$HOOF[(1940-1917 +1):length(WSA$all.data$HOOF)])
 
 
-WSAruns<-MCRUNS_F(WSA$all.data$AREA[1]/100, WSA_Regime)
+WSAruns<-MCRUNS_F(WSA$all.data$AREA[1]/100, WSA_Regime, IND = WSA$all.data$HOOF[(1940-1917 +1):length(WSA$all.data$HOOF)])
 # I turned off mmp...
 ## TODO: Ask Steve/Josh what mmp means here
 ### I'm assuming this has to do with environmental stochasticity?
 # ok, that worked, althought I dont understand the values
 
+length(WSAruns$Lambda)
+#66000
+
+# TODO: Ask about the assumed K values in these functions. I changed all functions to have an initial density of 0.06 (was 0.04) but the 
+# functions then also 1/2 this amount to calculate female density, and used the 1/2ed amount in the rest of the calculations. The manuscript
+# and SCB presentation states assumed female density dependence of 0.06. I need to know whether 0.06 is for females, or caribou in general.
+
+# TODO: Ask Steve how to repeat Table 2 from the Nowak manuscript (i.e. calculate the probability of persistence)
 # TODO: Ask Steve how he got his logic.gz files. I'll need to do this for all populations so that I can re-make the figures
+# TODO: Go through plots with Steve - Mean lambda currently working, but Extinction not
 
 
 
-# WSA
-#Example TODO: change this to the correct code.
-Pop<-c(180, 722)
-cp <- as.numeric(names(IND = WSA$all.data$HOOF[cp]))>1939
-WSACaribou<-Caribou_F(K = 902, p50s = WSA$all.data$PROP_BURN[cp], hoof = WSA$all.data$HOOF[cp], Pop = c(611, 921)) #adults, juveniles
-WSAScenarios<- ScenarioS_F(WSA$all.data$AREA[1]/100, WSA_Regime, IND = WSA$all.data$HOOF[cp])
-WSAruns<-MCRUNS_F(WSA$all.data$AREA[1]/100, WSA_Regime)
 

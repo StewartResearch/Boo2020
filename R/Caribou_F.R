@@ -4,9 +4,6 @@ Caribou_F<-function (K, p50s, hoof, Pop) # TODO: why is K at 500?
   # Pop is a vector of length 2, indicating how many juveniles and how many adults there are in the population
   ## e.g. Pop <- Pop<-c(0, 902)
   # only run code from 1940s onwards, even thought we might have some data (mostly zeros) from before that point
-  ## cp <- as.numeric(names(WSA$all.data$PROP_BURN))>1939
-  # example function:
-  ## Caribou_F(K = 500, p50s = WSA$all.data$PROP_BURN[cp], hoof = WSA$all.data$HOOF[cp], Pop) 
 
 {
   adult <- 0.83 # we could change this to be herd specific from the Caribou committee data
