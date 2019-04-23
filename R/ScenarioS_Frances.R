@@ -1,4 +1,4 @@
-SenarioS_F<-function (Area, Regime, IND = 50, CF = 1, Density = 0.04) 
+ScenarioS_F<-function (Area, Regime, IND = 50, CF = 1, Density = 0.04) 
 {
   InitPop <- function(K) {
     aoy = round(K * 0.6769521)
