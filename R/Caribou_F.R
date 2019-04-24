@@ -1,13 +1,14 @@
-Caribou_F<-function (K, p50s, hoof, Pop) # TODO: why is K at 500? 
+Caribou_F<-function (K, p50s, hoof, Pop)
+  # K is the population carrying capacity - area (in kn^2) * 0.06 #ASSUMPTION
   # p50s is from AREA$all.data$PROP_BURN
   # hoof is from AREA$All.data$HOOF
-  # Pop is a vector of length 2, indicating how many juveniles and how many adults there are in the population
-  ## e.g. Pop <- Pop<-c(0, 902)
+  # Pop is a vector of length 2, indicating how many adults, juveniles there are in the population
+  ## e.g. Pop <- Pop<-c(200, 50)
   # only run code from 1940s onwards, even thought we might have some data (mostly zeros) from before that point
 
 {
-  adult <- 0.83 # we could change this to be herd specific from the Caribou committee data
-  fecun <- 0.354825 # same here.
+  adult <- 0.85 # change this to be and average herd-specific value. From CaribouLambda.csv
+  fecun <- 0.2024 # change this to be an average herd-specific value. From CaribouLambda.csv
   DensDep <- function(N = size, K = K, adult) {
     tmpf <- adult * exp(-1 * (N/K)^4)
   }

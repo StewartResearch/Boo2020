@@ -1,9 +1,11 @@
+# Steve SCB graphs ----
+
 # Steve, presentation graphs Edmonton
 #  Two herds, LS and WSA
 
 
 # First load the data you will need
-setwd("Z:/Publications/Nowak et al/data")
+# setwd("Z:/Publications/Nowak et al/data")
 #load(file = "LS_Data.gz")
 #load(file = "WSA_Data.gz")
 # load(file = "LS_logic_runs.gz")
@@ -370,7 +372,7 @@ legend(x = 2010, y = 1, pch = c(15, 15, NA, NA, NA, NA), lty = c(NA, NA, 5,3,1,1
 
 ###########################################################################################################################################
 ###########################################################################################################################################
-#Eliot Putsing Fire Growth Model
+#Eliot Putsing Fire Growth Model ----
 
 b = vector()
 f = vector()
@@ -407,7 +409,7 @@ print(sum(f))
 plot(f)
 
 #################################################################################################################################################
-#Caribou analysis Steve Josh
+#Caribou analysis Steve Josh ----
 
 library(nlme)
 library(lme4)
@@ -512,7 +514,8 @@ anova(car.3, car.6, test = "LRT")
 
 
 #############################################################
-# Re-creating Table 1
+# RESULTS ----
+# Re-creating Table 1 - OLD
 WSA$HERD_AREA # same area as table 1
 Initialpopulation <- 0.06*(WSA$HERD_AREA/100) # same initial population as Table 1. GOOD.
 mean(WSA$BURN_PROP) # same as the Fire regime in Table 1. GOOD.
@@ -557,7 +560,7 @@ dat.CLAWR$HOOF
 # After a chat with Steve, we clarified how to calculate a few of these things. See below for values generated in Table 1 from Nowak old version.
 # They now also check out.
 
-# repeating Table 1
+# Recreating Table 1 ----
 # WSA
 WSA$all.data$AREA[1] # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
 WSA_InitialPop = (WSA$all.data$AREA[1])/100*0.06 # assumes carry capacity is 0.06 females/km^2
@@ -598,7 +601,6 @@ BetaMomentEst((CL_Fire*(CLAWR$all.data$AREA[1]/f.clawr$AREA_HERD[1])))
 # we therefore have to adjust those vlaues calculated on provincial lands by values calulated on all lands
 # which is why we incorporate the ratio between the all.data$AREA values and the f.clawr$AREA_HERD values
 
-
 #RE
 RE$all.data$AREA[1] # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
 RE_InitialPop = (RE$all.data$AREA[1])/100*0.06 # assumes carry capacity is 0.06 females/km^2
@@ -617,7 +619,7 @@ BetaMomentEst(CM_Fire)
 #############################################################################################################################################
 
 
-# repeating Table 2
+# Recreating Table 2 ----
 # use the Caribou function - produces extinction probabilities
 ## for this function we require the p50s, hoof, and pop vlaues for all years after 1940s
 
@@ -642,15 +644,26 @@ length(WSA$hoof) # 92
 # # after some help from Ceres we decided that Pop needs to be a vector, length 2, of the number of juveniles and adults in the population
 
 # Test:
-Pop<-c(722, 180) #adults, juveniles
-# for a population of 902 assumes 20% of herd is calves.
-# TODO: Ask Steve what the assumed ratio of cows: calves are here, as this specifies the Pop vector
+# Pop<-c(722, 180) #adults, juveniles
+# for a population of 902 assumes 20% of herd is calves. # previous functions have assumed 33% of herds are calves - CHECK!
+# TODO: Ask Steve what the assumed ratio of cows: calves are here, as this specifies the Pop vector. Is this 0.66/0.33?
 #Pop<-c(0, 902) # for a population of 902 - not sure if it should be this line or the line above.
 
 #Subset all entries so that they only include entries later than 1939
+# TODO: set Adult female survival, and calf recruitment, to average number from recorded from Caribou committee data: CaribouLambda.csv
+setwd("Z:/GitHub/Boo2019/data")
+caribou<-read.csv("CaribouLambda.csv", header = T)
+caribouWSA<-subset(caribou, caribou$herd == "West_Side_Athabasca_River")
+mean(caribouWSA$Adult_Female_Survival) #85.64. Set this number in the below function
+mean(caribouWSA$Calf_Recruitment) #20.24. Set this number in the below function
+Pop <-c(902*(1-0.20), 902*(0.20)) # use the above means to calculate the number of adult females and calves at in the inital population
+setwd("Z:/GitHub/Boo2019/outputs")
 
+# Run the first function: Calcualtes demographics without stochasticity, and only for the duration of time that we have data (69 years here)
 WSACaribou<-Caribou_F(K = 902, p50s = WSA$all.data$PROP_BURN[(1940-1917+1):length(WSA$all.data$PROP_BURN)], hoof = WSA$all.data$HOOF[(1940-1917 +1):length(WSA$all.data$HOOF)], Pop) 
 
+# Run the second funciton - this function brings in the period of time before our data collection (older than 69 years ago), and a projected period
+## of time to 2050
 # enter herd area size as one number in km^2
 # enter the mean and sd of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
 ## TODO: Ask Steve/Josh what IND means here
