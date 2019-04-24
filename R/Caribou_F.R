@@ -1,16 +1,17 @@
 Caribou_F<-function (K, p50s, hoof, Pop)
   # K is the population carrying capacity - area (in kn^2) * 0.06 #ASSUMPTION
-  # p50s is from AREA$all.data$PROP_BURN
+  # p50s is from AREA$all.data$BURN_INC
   # hoof is from AREA$All.data$HOOF
   # Pop is a vector of length 2, indicating how many adults, juveniles there are in the population
-  ## e.g. Pop <- Pop<-c(200, 50)
+  ## e.g. Pop <- Pop<-c(k, k*Rec)
   # only run code from 1940s onwards, even thought we might have some data (mostly zeros) from before that point
 
 {
   adult <- SadF # change this to be and average herd-specific value. From CaribouLambda.csv
   fecun <- Rec # change this to be an average herd-specific value. From CaribouLambda.csv
   DensDep <- function(N = size, K = K, adult) {
-    tmpf <- adult * exp(-1 * (N/K)^4)
+    tmpf <- adult * exp(-1 * (N/K)^4) # could change if needed. 4 is arbitrary for now.
+    return(tmpf)
   }
   sigj <- function(Lambda, fecun, adult) {
     jsurv <- ((2 * Lambda - adult)^2 - adult^2)/(4 * fecun)

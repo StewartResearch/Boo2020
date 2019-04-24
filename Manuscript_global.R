@@ -654,25 +654,28 @@ length(WSA$hoof) # 92
 setwd("Z:/GitHub/Boo2019/data")
 caribou<-read.csv("CaribouLambda.csv", header = T)
 caribouWSA<-subset(caribou, caribou$herd == "West_Side_Athabasca_River")
-SadF<-mean(caribouWSA$Adult_Female_Survival) #85.64. Set this number in the below function
-Rec<-mean(caribouWSA$Calf_Recruitment) #20.24. Set this number in the below function
-Pop <-c(902*(1-Rec/100), 902*(Rec/100)) # use the above means to calculate the number of adult females and calves at in the inital population
+SadF<-mean(caribouWSA$Adult_Female_Survival)/100 #0.8564. Set this number in the below function
+Rec<-mean(caribouWSA$Calf_Recruitment)/100 #0.2024. Set this number in the below function
+#Pop <-c(902*(1-Rec/100), 902*(Rec/100)) # use the above means to calculate the number of adult females and calves at in the inital population
+Pop <- c(902, 902*(Rec)) # STEVE ADDITION 
 setwd("Z:/GitHub/Boo2019/outputs")
 
 # Run the first function: Calcualtes demographics without stochasticity, and only for the duration of time that we have data (69 years here)
+# 
 WSACaribou<-Caribou_F(K = 902, p50s = WSA$all.data$PROP_BURN[(1940-1917+1):length(WSA$all.data$PROP_BURN)], hoof = WSA$all.data$HOOF[(1940-1917 +1):length(WSA$all.data$HOOF)], Pop) 
 
-# Run the second funciton - this function brings in the period of time before our data collection (older than 69 years ago), and a projected period
+# Run the second funciton: this function brings in the period of time before our data collection (older than 69 years ago), and a projected period
 ## of time to 2050
 # enter herd area size as one number in km^2
 # enter the mean and sd of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
-## TODO: Ask Steve/Josh what IND means here
-### Ind needs to be a vector of length 2, if I am going to use the old code.
-### otherwise it ends up being a the same value twice, if I am using the new code. 
+# enter the industrial disturbance on a yearly basis
 WSA_Regime<-WSA_Fire
 WSAScenarios<- ScenarioS_F(WSA$all.data$AREA[1]/100, WSA_Regime, IND = WSA$all.data$HOOF[(1940-1917 +1):length(WSA$all.data$HOOF)])
 
-
+# Run the third function: this function adds environmental stochasticity to the simulation by repeating it 300 times
+# enter herd area size as one number in km^2
+# enter the mean and sd of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
+# enter the industrial disturbance on a yearly basis
 WSAruns<-MCRUNS_F(WSA$all.data$AREA[1]/100, WSA_Regime, IND = WSA$all.data$HOOF[(1940-1917 +1):length(WSA$all.data$HOOF)])
 # I turned off mmp...
 ## TODO: Ask Steve/Josh what mmp means here
@@ -680,7 +683,7 @@ WSAruns<-MCRUNS_F(WSA$all.data$AREA[1]/100, WSA_Regime, IND = WSA$all.data$HOOF[
 # ok, that worked, althought I dont understand the values
 
 length(WSAruns$Lambda)
-#66000
+#66000 - = 220 years? # correct
 
 # TODO: Ask about the assumed K values in these functions. I changed all functions to have an initial density of 0.06 (was 0.04) but the 
 # functions then also 1/2 this amount to calculate female density, and used the 1/2ed amount in the rest of the calculations. The manuscript
@@ -688,7 +691,7 @@ length(WSAruns$Lambda)
 
 # TODO: Ask Steve how to repeat Table 2 from the Nowak manuscript (i.e. calculate the probability of persistence)
 # TODO: Ask Steve how he got his logic.gz files. I'll need to do this for all populations so that I can re-make the figures
-# TODO: Go through plots with Steve - Mean lambda currently working, but Extinction not
+# TODO: Go through plots with Steve - Mean lambda currently working, but Extinction, Nt, not
 
 
 
