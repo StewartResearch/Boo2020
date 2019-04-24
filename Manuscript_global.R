@@ -618,51 +618,27 @@ CM_Fire_sd = sd(CM$all.data$PROP_BURN[(1940-1917+1):length(CM$all.data$PROP_BURN
 BetaMomentEst(CM_Fire)
 #############################################################################################################################################
 
-
 # Recreating Table 2 ----
-# use the Caribou function - produces extinction probabilities
-## for this function we require the p50s, hoof, and pop vlaues for all years after 1940s
-
 # WSA
+## summary info
 length(WSA$p50s) # 92 
 head(WSA$p50s) # starts in 1940, goes until 2007, multiple values for some years
 min(WSA$all.data$YEAR) #1917
 max(WSA$all.data$YEAR) #2008
 length(WSA$hoof) # 92
-# not sure where the pop values are supposed to come from...
-# will try initializing with the estimated inital population (ie. at 1940 - hen p50s start)
-# Caribou(K = 500, WSA$p50s, WSA$hoof, 902)
-# and I get the error: "Error in V %*% P : non-conformable arguments"
-# As of right now I do not have any information on V (or "a data frame named vital", or P)
-# I'm assuming that P is the population size, and V are the vital rates?
-# # I tried removing the V and P part
-# Caribou_F(K = 500, WSA$p50s, WSA$hoof, 902)
-# # still not working, but lets try loading in the only demographic information that I have:
-# Vital_Unsure <- read.csv("CaribouLambda.csv", header = T)
-# Caribou_F(K = 500, WSA$p50s, WSA$hoof, 902)
-# # that didnt work....
-# # after some help from Ceres we decided that Pop needs to be a vector, length 2, of the number of juveniles and adults in the population
 
-# Test:
-# Pop<-c(722, 180) #adults, juveniles
-# for a population of 902 assumes 20% of herd is calves. # previous functions have assumed 33% of herds are calves - CHECK!
-# TODO: Ask Steve what the assumed ratio of cows: calves are here, as this specifies the Pop vector. Is this 0.66/0.33?
-#Pop<-c(0, 902) # for a population of 902 - not sure if it should be this line or the line above.
-
-#Subset all entries so that they only include entries later than 1939
-# TODO: set Adult female survival, and calf recruitment, to average number from recorded from Caribou committee data: CaribouLambda.csv
+# Set Adult female survival, and calf recruitment, to average number from recorded from Caribou committee data: CaribouLambda.csv
 setwd("Z:/GitHub/Boo2019/data")
 caribou<-read.csv("CaribouLambda.csv", header = T)
 caribouWSA<-subset(caribou, caribou$herd == "West_Side_Athabasca_River")
 SadF<-mean(caribouWSA$Adult_Female_Survival)/100 #0.8564. Set this number in the below function
 Rec<-mean(caribouWSA$Calf_Recruitment)/100 #0.2024. Set this number in the below function
-#Pop <-c(902*(1-Rec/100), 902*(Rec/100)) # use the above means to calculate the number of adult females and calves at in the inital population
-Pop <- c(902, 902*(Rec)) # STEVE ADDITION 
+Pop <- c(902, 902*(Rec)) 
 setwd("Z:/GitHub/Boo2019/outputs")
 
 # Run the first function: Calcualtes demographics without stochasticity, and only for the duration of time that we have data (69 years here)
 # 
-WSACaribou<-Caribou_F(K = 902, p50s = WSA$all.data$PROP_BURN[(1940-1917+1):length(WSA$all.data$PROP_BURN)], hoof = WSA$all.data$HOOF[(1940-1917 +1):length(WSA$all.data$HOOF)], Pop) 
+WSACaribou<-Caribou_F(K = 902, p50s = WSA$all.data$PROP_BURN[(1940-1917+1):length(WSA$all.data$PROP_BURN)], hoof = WSA$all.data$HOOF[(1940-1917 +1):length(WSA$all.data$HOOF)], Pop, adult = SadF, fecun = Rec) 
 
 # Run the second funciton: this function brings in the period of time before our data collection (older than 69 years ago), and a projected period
 ## of time to 2050
