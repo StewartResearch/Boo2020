@@ -42,7 +42,7 @@ Caribou_F<-function (K, p50s, hoof, Pop, adult, fecun)
   AdultFecundity <- vector("numeric", N)
   eig <- list()
   dom.eig <- list()
-  Lambda[1] <- 1.191 - (0.314 * hoof[1]) - (0.29 * p50s[1])
+  Lambda[1] <- 1.191 - (0.315 * hoof[1]) - (0.29 * p50s[1])
   size[1] <- sum(Pop)
   NAF[1] <- Pop[2]
   NYF[1] <- Pop[1]

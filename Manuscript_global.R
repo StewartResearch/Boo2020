@@ -104,7 +104,7 @@ Fires <- function(place, Title){      # Actual fires == Example: Fires(CLAWR$PRO
 }
 
 Fires(LS, "Little Smoky Annual Proportion Area Burned")
-Fires(WSA, "West Side Athabasca Annual Proportion Area Burned")
+Fires(WSA2, "West Side Athabasca Annual Proportion Area Burned")
 dev.off()
 
 ################################################################################
@@ -636,9 +636,16 @@ Rec<-mean(caribouWSA$Calf_Recruitment)/100 #0.2024. Set this number in the below
 Pop <- c(902, 902*(Rec)) 
 setwd("Z:/GitHub/Boo2019/outputs")
 
+# re-calculate the cummulative burn for each year, as this was not originally provided. Run the function from
+WSA2 <- Burn_F(firesData = f.wsa, heardData = WSA$all.data)
+# use this data table in the following functions
+# See TODO in this function.
+
 # Run the first function: Calcualtes demographics without stochasticity, and only for the duration of time that we have data (69 years here)
-# 
-WSACaribou<-Caribou_F(K = 902, p50s = WSA$all.data$PROP_BURN[(1940-1917+1):length(WSA$all.data$PROP_BURN)], hoof = WSA$all.data$HOOF[(1940-1917 +1):length(WSA$all.data$HOOF)], Pop, adult = SadF, fecun = Rec) 
+K = 902
+p50s = ((WSA2$CUM_BURN[(1940-1917+1):length(WSA2$CUM_BURN)-1])/100)/WSA$herdarea # translate from ha to km^2 for all years after 1940, but not the last year
+hoof = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1]
+WSACaribou<-Caribou_F(K, p50s, hoof, Pop, adult = SadF, fecun = Rec) 
 
 # Run the second funciton: this function brings in the period of time before our data collection (older than 69 years ago), and a projected period
 ## of time to 2050
