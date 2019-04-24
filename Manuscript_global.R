@@ -654,9 +654,9 @@ length(WSA$hoof) # 92
 setwd("Z:/GitHub/Boo2019/data")
 caribou<-read.csv("CaribouLambda.csv", header = T)
 caribouWSA<-subset(caribou, caribou$herd == "West_Side_Athabasca_River")
-mean(caribouWSA$Adult_Female_Survival) #85.64. Set this number in the below function
-mean(caribouWSA$Calf_Recruitment) #20.24. Set this number in the below function
-Pop <-c(902*(1-0.20), 902*(0.20)) # use the above means to calculate the number of adult females and calves at in the inital population
+SadF<-mean(caribouWSA$Adult_Female_Survival) #85.64. Set this number in the below function
+Rec<-mean(caribouWSA$Calf_Recruitment) #20.24. Set this number in the below function
+Pop <-c(902*(1-Rec/100), 902*(Rec/100)) # use the above means to calculate the number of adult females and calves at in the inital population
 setwd("Z:/GitHub/Boo2019/outputs")
 
 # Run the first function: Calcualtes demographics without stochasticity, and only for the duration of time that we have data (69 years here)

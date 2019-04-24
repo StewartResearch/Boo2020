@@ -7,8 +7,8 @@ Caribou_F<-function (K, p50s, hoof, Pop)
   # only run code from 1940s onwards, even thought we might have some data (mostly zeros) from before that point
 
 {
-  adult <- 0.85 # change this to be and average herd-specific value. From CaribouLambda.csv
-  fecun <- 0.2024 # change this to be an average herd-specific value. From CaribouLambda.csv
+  adult <- SadF # change this to be and average herd-specific value. From CaribouLambda.csv
+  fecun <- Rec # change this to be an average herd-specific value. From CaribouLambda.csv
   DensDep <- function(N = size, K = K, adult) {
     tmpf <- adult * exp(-1 * (N/K)^4)
   }
