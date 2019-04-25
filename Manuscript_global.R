@@ -629,11 +629,12 @@ BetaMomentEst(CM_Fire)
 setwd("Z:/GitHub/Boo2019/data")
 caribou<-read.csv("CaribouLambda.csv", header = T)
 caribouWSA<-subset(caribou, caribou$herd == "West_Side_Athabasca_River")
-SadF<-mean(caribouWSA$Adult_Female_Survival)/100 #0.8564. Set this number in the below function
-Rec<-mean(caribouWSA$Calf_Recruitment)/100 #0.2024. Set this number in the below function
-Pop <- c(902, 902*(Rec)) 
+SadF<-mean(caribouWSA$Adult_Female_Survival)/100 #0.8564. Adult female survival
+Rec<-mean(caribouWSA$Calf_Recruitment)/100 #0.2024. Juvenile recruitment - TODO should this number be 1/2?
+Pop <- c(902*0.5, 902*(Rec)) # the population, adult females, and juveniles
 setwd("Z:/GitHub/Boo2019/outputs")
 
+# TODO: ask steve about Density - is 902 the total population, or just females?
 
 # FIRST FUNCTION: Calcualtes demographics without stochasticity, and only for the duration of time that we have data (69 years here)
 K = 902
@@ -651,6 +652,7 @@ IND = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1] # enter the industrial distu
 
 WSAScenarios<- ScenarioS_F(Area, Regime, IND) # TODO: ask steve about the density estimate (K)
 
+# TODO: perform the experiments here, by altering variables independently and plotting?
 
 # THIRD FUNCTION: this function adds environmental stochasticity to the simulation by repeating it 300 times
 Area = WSA2$AREA[1]/100 # enter herd area size as one number in km^2
