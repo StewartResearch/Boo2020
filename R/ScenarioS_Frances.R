@@ -2,7 +2,7 @@ ScenarioS_F<-function (Area, Regime, IND, CF = 1, Density = 0.06)
 {
   
   InitPop <- function(K) {
-    aoy = round(K * 0.6769521)
+    aoy = round(K * 0.6769521) #
     yoy = K - aoy
     matrix(c(aoy, yoy), nrow = 2, ncol = 1, byrow = TRUE)
   }
@@ -10,7 +10,7 @@ ScenarioS_F<-function (Area, Regime, IND, CF = 1, Density = 0.06)
   P0 <- InitPop(K)
   print(P0)
   tmp <- FireModelS(Regime = Regime * CF, N = 400, T = 200, 
-                    AgeStruct = NULL, SimFire = TRUE)
+                    AgeStruct = NULL, SimFire = TRUE) 
   pYoung1 <- tmp$Young
   AS1 <- tmp$EndForest
   fp1 <- rep(0, length(pYoung1))
@@ -23,7 +23,7 @@ ScenarioS_F<-function (Area, Regime, IND, CF = 1, Density = 0.06)
   fp2 <- IND
   Stage2 <- Caribou(K = K, p50s = pYoung2, hoof = fp2, Pop = Stage1$EndPop)
   print(paste("EndPop2 = ", Stage2$EndPop, sep = ""))
-  CurRegime <- rev(Regime)[1:length(Regime)]
+  CurRegime <- rev(Regime)[1:length(Regime)] # TODO: take the last 50 years and use that. To revisit with Steve.
   tmp3 <- FireModelS(CurRegime, N = 50, T = 200, AgeStruct = AS2, 
                      SimFire = TRUE)
   pYoung3 <- tmp3$Young

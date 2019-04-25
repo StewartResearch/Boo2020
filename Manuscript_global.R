@@ -76,7 +76,7 @@ Fires <- function(place, Title){      # Actual fires == Example: Fires(CLAWR$PRO
 
 pdf(file = "LS and WSA Prop. Area Burn.pdf", onefile = T)
 Fires(LS, "LS Annual Proportion Area Burned")
-Fires(WSA, "WSA Annual Proportion Area Burned")
+Fires(WSA2, "WSA Annual Proportion Area Burned")
 dev.off()
 #########################################
 # Frances additions
@@ -560,18 +560,10 @@ dat.CLAWR$HOOF
 # After a chat with Steve, we clarified how to calculate a few of these things. See below for values generated in Table 1 from Nowak old version.
 # They now also check out.
 
-# Recreating Table 1 ----
+# Recreating Table 1
 # WSA
 
-# re-calculate the cummulative burn for each year, as this was not originally provided. Run the function from
-WSA2 <- Burn_F(firesData = f.wsa, heardData = WSA$all.data)
 
-WSA2$AREA[1] # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
-WSA_InitialPop = (WSA2$AREA[1])/100*0.06 # assumes carry capacity is 0.06 females/km^2
-WSA_Fire = WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1] # fire events from 1940s onwards
-WSA_Fire_mean = mean(WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1]) # mean annual porportion burned from 1940 onwards
-WSA_Fire_sd = sd(WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1]) # sd annual porportion burned from 1940 onwards
-WSA_Beta<- BetaMomentEst(WSA_Fire)
 
 #ESA - REMOVE HERD UNTIL FUTHER DATA BECOMES AVAILABLE - none of the below values are what are reported in Table 1.
 ESA$all.data$AREA[1] # in ha. Divide by 100 to get km^2 (which is presented in Table 1) #NOT FROM TABLE 1
@@ -622,22 +614,53 @@ CM_Fire_sd = sd(CM$all.data$PROP_BURN[(1940-1917+1):length(CM$all.data$PROP_BURN
 BetaMomentEst(CM_Fire)
 #############################################################################################################################################
 
-# Recreating Table 2 ----
-# WSA
 
-# Set Adult female survival, and calf recruitment, to average number from recorded from Caribou committee data: CaribouLambda.csv
+
+
+# WSA ----
+# Recreating Table 1 - Summary data ----
+# re-calculate the cummulative burn for each year, as this was not originally provided. Run the function from
+WSA2 <- Burn_F(firesData = f.wsa, heardData = WSA$all.data)
+
+WSA2$AREA[1] # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
+WSA_InitialPop = (WSA2$AREA[1])/100*0.06 # assumes carry capacity is 0.06 females/km^2
+WSA_Fire = WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1] # fire events from 1940s onwards
+WSA_Fire_mean = mean(WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1]) # mean annual porportion burned from 1940 onwards
+WSA_Fire_sd = sd(WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1]) # sd annual porportion burned from 1940 onwards
+WSA_Beta<- BetaMomentEst(WSA_Fire)
+# TODO: need to change PROP_CUM_BRUN TO PROP_BURN - ie need annual burn proportion for simulation model.
+
+
+
+
+
+# Set vital rates to average number from recorded from Alberta Caribou committee data: CaribouLambda.csv (2002-2008)
 setwd("Z:/GitHub/Boo2019/data")
 caribou<-read.csv("CaribouLambda.csv", header = T)
+setwd("Z:/GitHub/Boo2019/outputs")
+
 caribouWSA<-subset(caribou, caribou$herd == "West_Side_Athabasca_River")
 SadF<-mean(caribouWSA$Adult_Female_Survival)/100 #0.8564. Adult female survival
 Rec<-mean(caribouWSA$Calf_Recruitment)/100 #0.2024. Juvenile recruitment - TODO should this number be 1/2?
-Pop <- c(902*0.5, 902*(Rec)) # the population, adult females, and juveniles
-setwd("Z:/GitHub/Boo2019/outputs")
+# ASSUMPTION  - these rates are held consistent through time.
+## Alternately, we could set SadF to 0.85, and Rec to 0.3 in accordance with Environment Canada assumptions
+# STEVE
 
+# specify the population structure, based on the above information 
+#MaxFemales/Hectare
+K = WSA2$AREA[1]/100*0.03 # carrying capacity is 0.06 as the upper limit # STEVE: lets use 0.03 females/km^2
+Pop <- c(K, K*(Rec)) # adult females, and juveniles
+#
+
+# summary plots
+Fires(WSA2, "WSA proportion cumulative burn")
+pHoof(WSA2, "WSA proportion industrial")
+
+
+# Performing analyses ----
 # TODO: ask steve about Density - is 902 the total population, or just females?
 
 # FIRST FUNCTION: Calcualtes demographics without stochasticity, and only for the duration of time that we have data (69 years here)
-K = 902
 p50s = (WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1]) # all years from 1940s onwards, but not the last year
 hoof = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1]# all years from 1940s onwards, but not the last year
 
@@ -645,25 +668,32 @@ WSACaribou<-Caribou_F(K, p50s, hoof, Pop, adult = SadF, fecun = Rec)
 
 
 # SECOND FUNCTION: this function brings in the period of time before our data collection (older than 69 years ago), 
-# and a projected period of time to 2050
+# and a projected period of time to 2050 (500 years total)
 Area = WSA2$AREA[1]/100# enter herd area size as one number in km^2
-Regime = WSA_Fire # enter the mean and sd of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
+Regime = WSA_Fire # enter the mean of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
 IND = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
 
 WSAScenarios<- ScenarioS_F(Area, Regime, IND) # TODO: ask steve about the density estimate (K)
 
-# TODO: perform the experiments here, by altering variables independently and plotting?
 
 # THIRD FUNCTION: this function adds environmental stochasticity to the simulation by repeating it 300 times
 Area = WSA2$AREA[1]/100 # enter herd area size as one number in km^2
-Regime = WSA_Fire # enter the mean and sd of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
+Regime = WSA_Fire # enter the mean of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
 IND = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
 
 WSAruns<-MCRUNS_F(Area, Regime, IND) # TODO: ask steve about mmp
 
+length(WSAruns$Lambda)/300 # 300 runs
+# 196 years - correct
 
-length(WSAruns$Lambda)
-#66000 - = 220 years? # correct
+#plot
+pLambda(WSAruns, "WSA")
+
+
+# Performing experiments ----
+# TODO: perform the experiments here, by altering variables from ScenarioS independently and plotting?
+
+# Calculate the extinctions and YCRITS ----
 
 # TODO: Ask Steve how to repeat Table 2 from the Nowak manuscript (i.e. calculate the probability of persistence)
 # TODO: Ask Steve how he got his logic.gz files. I'll need to do this for all populations so that I can re-make the figures

@@ -1,6 +1,7 @@
 
 pLambda<-function(Herd, Title = ""){      #plot mean Lambda  Example:  pLambda(clawrmc, "CLAWR")
   Lamb.CI <- apply(Herd$Lambda, 2, function(x){
+    #browser()
     c(quantile(x,0.05),  mean(x), quantile(x, 0.95))
   })
   PP<-function(x = Lambda){
