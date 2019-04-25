@@ -562,11 +562,15 @@ dat.CLAWR$HOOF
 
 # Recreating Table 1 ----
 # WSA
-WSA$all.data$AREA[1] # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
-WSA_InitialPop = (WSA$all.data$AREA[1])/100*0.06 # assumes carry capacity is 0.06 females/km^2
-WSA_Fire = WSA$all.data$PROP_BURN[(1940-1917+1):length(WSA$all.data$PROP_BURN)] # fire events from 1940s onwards
-WSA_Fire_mean = mean(WSA$all.data$PROP_BURN[(1940-1917+1):length(WSA$all.data$PROP_BURN)]) # mean annual porportion burned from 1940 onwards
-WSA_Fire_sd = sd(WSA$all.data$PROP_BURN[(1940-1917+1):length(WSA$all.data$PROP_BURN)]) # sd annual porportion burned from 1940 onwards
+
+# re-calculate the cummulative burn for each year, as this was not originally provided. Run the function from
+WSA2 <- Burn_F(firesData = f.wsa, heardData = WSA$all.data)
+
+WSA2$AREA[1] # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
+WSA_InitialPop = (WSA2$AREA[1])/100*0.06 # assumes carry capacity is 0.06 females/km^2
+WSA_Fire = WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1] # fire events from 1940s onwards
+WSA_Fire_mean = mean(WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1]) # mean annual porportion burned from 1940 onwards
+WSA_Fire_sd = sd(WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1]) # sd annual porportion burned from 1940 onwards
 WSA_Beta<- BetaMomentEst(WSA_Fire)
 
 #ESA - REMOVE HERD UNTIL FUTHER DATA BECOMES AVAILABLE - none of the below values are what are reported in Table 1.
@@ -620,12 +624,6 @@ BetaMomentEst(CM_Fire)
 
 # Recreating Table 2 ----
 # WSA
-## summary info
-length(WSA$p50s) # 92 
-head(WSA$p50s) # starts in 1940, goes until 2007, multiple values for some years
-min(WSA$all.data$YEAR) #1917
-max(WSA$all.data$YEAR) #2008
-length(WSA$hoof) # 92
 
 # Set Adult female survival, and calf recruitment, to average number from recorded from Caribou committee data: CaribouLambda.csv
 setwd("Z:/GitHub/Boo2019/data")
@@ -636,41 +634,34 @@ Rec<-mean(caribouWSA$Calf_Recruitment)/100 #0.2024. Set this number in the below
 Pop <- c(902, 902*(Rec)) 
 setwd("Z:/GitHub/Boo2019/outputs")
 
-# re-calculate the cummulative burn for each year, as this was not originally provided. Run the function from
-WSA2 <- Burn_F(firesData = f.wsa, heardData = WSA$all.data)
-# use this data table in the following functions
-# See TODO in this function.
 
-# Run the first function: Calcualtes demographics without stochasticity, and only for the duration of time that we have data (69 years here)
+# FIRST FUNCTION: Calcualtes demographics without stochasticity, and only for the duration of time that we have data (69 years here)
 K = 902
-p50s = ((WSA2$CUM_BURN[(1940-1917+1):length(WSA2$CUM_BURN)-1])/100)/WSA$herdarea # translate from ha to km^2 for all years after 1940, but not the last year
-hoof = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1]
+p50s = (WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1]) # all years from 1940s onwards, but not the last year
+hoof = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1]# all years from 1940s onwards, but not the last year
+
 WSACaribou<-Caribou_F(K, p50s, hoof, Pop, adult = SadF, fecun = Rec) 
 
-# Run the second funciton: this function brings in the period of time before our data collection (older than 69 years ago), and a projected period
-## of time to 2050
-# enter herd area size as one number in km^2
-# enter the mean and sd of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
-# enter the industrial disturbance on a yearly basis
-WSA_Regime<-WSA_Fire
-WSAScenarios<- ScenarioS_F(WSA$all.data$AREA[1]/100, WSA_Regime, IND = WSA$all.data$HOOF[(1940-1917 +1):length(WSA$all.data$HOOF)])
 
-# Run the third function: this function adds environmental stochasticity to the simulation by repeating it 300 times
-# enter herd area size as one number in km^2
-# enter the mean and sd of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
-# enter the industrial disturbance on a yearly basis
-WSAruns<-MCRUNS_F(WSA$all.data$AREA[1]/100, WSA_Regime, IND = WSA$all.data$HOOF[(1940-1917 +1):length(WSA$all.data$HOOF)])
-# I turned off mmp...
-## TODO: Ask Steve/Josh what mmp means here
-### I'm assuming this has to do with environmental stochasticity?
-# ok, that worked, althought I dont understand the values
+# SECOND FUNCTION: this function brings in the period of time before our data collection (older than 69 years ago), 
+# and a projected period of time to 2050
+Area = WSA2$AREA[1]/100# enter herd area size as one number in km^2
+Regime = WSA_Fire # enter the mean and sd of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
+IND = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
+
+WSAScenarios<- ScenarioS_F(Area, Regime, IND) # TODO: ask steve about the density estimate (K)
+
+
+# THIRD FUNCTION: this function adds environmental stochasticity to the simulation by repeating it 300 times
+Area = WSA2$AREA[1]/100 # enter herd area size as one number in km^2
+Regime = WSA_Fire # enter the mean and sd of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
+IND = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
+
+WSAruns<-MCRUNS_F(Area, Regime, IND) # TODO: ask steve about mmp
+
 
 length(WSAruns$Lambda)
 #66000 - = 220 years? # correct
-
-# TODO: Ask about the assumed K values in these functions. I changed all functions to have an initial density of 0.06 (was 0.04) but the 
-# functions then also 1/2 this amount to calculate female density, and used the 1/2ed amount in the rest of the calculations. The manuscript
-# and SCB presentation states assumed female density dependence of 0.06. I need to know whether 0.06 is for females, or caribou in general.
 
 # TODO: Ask Steve how to repeat Table 2 from the Nowak manuscript (i.e. calculate the probability of persistence)
 # TODO: Ask Steve how he got his logic.gz files. I'll need to do this for all populations so that I can re-make the figures
