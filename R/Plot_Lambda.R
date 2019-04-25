@@ -22,7 +22,7 @@ pLambda<-function(Herd, Title = ""){      #plot mean Lambda  Example:  pLambda(c
   PP(Lamb.CI)
   title(main = Title, xlab = "Year", ylab = "Lambda",
         font.main = 2, font.lab = 4,
-        col.main = "blue", col.lab = "blue",
+        col.main = "black", col.lab = "black",
         cex.lab = 1.3, cex.main = 1.4)
 }
 
