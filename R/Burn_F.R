@@ -9,9 +9,7 @@ Burn_F <- function(firesData, heardData) {
   fire50 <- fire50[, names(fire50)[!names(fire50) %in% colsKeep] := NULL]
   fire50 <- unique(fire50)
   hData <- merge(fire50, heardData, on = "YEAR")
-  #hData$PROP_CUM_BURN <- fire50$CUM_BURN/100
-  #TODO: divide CUM_BURN by 100 (to translate to km^2), and also divide by the herd area (to calculate the proportion)
-  #TODO: add this new vaule to the hData as PROP_CUM_BURN
+  hData$PROP_CUM_BURN <- (hData$CUM_BURN/100)/hData$AREA
   return(hData)
 }
 ####################################
