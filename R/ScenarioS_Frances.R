@@ -1,4 +1,4 @@
-ScenarioS_F<-function (Area, Regime, IND, CF = 1, Density = 0.06) 
+ScenarioS_F<-function (Area, Regime, IND, CF = 1, Density = 0.03) 
 {
   
   InitPop <- function(K) {
