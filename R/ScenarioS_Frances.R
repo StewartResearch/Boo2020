@@ -6,7 +6,7 @@ ScenarioS_F<-function (Area, Regime, IND, CF = 1, Density = 0.03)
     yoy = K - aoy
     matrix(c(aoy, yoy), nrow = 2, ncol = 1, byrow = TRUE)
   }
-  K <- round(Area * Density * 0.5)[1]
+  K <- round(Area * Density)[1]
   P0 <- InitPop(K)
   print(P0)
   tmp <- FireModelS(Regime = Regime * CF, N = 400, T = 200, 
