@@ -1,7 +1,6 @@
-MCRUNS_F<-function (Area, Regime, IND, CF = 1, Density = 0.06, #mmp = 5, 
+MCRUNS_F<-function (Area, Regime, IND, CF = 1, Density = 0.03, #mmp = 5, 
                     Reps = 300) 
-  # TODO: Ask Steve: IS MMP a pseudo extinction threshold?
-  # removed for now
+  # not sure what mmp was needed for - it is never called
 {
   NF <- NULL
   Lambda <- NULL
