@@ -618,37 +618,33 @@ BetaMomentEst(CM_Fire)
 
 
 # WSA ----
-# Recreating Table 1 - Summary data ----
 # re-calculate the cummulative burn for each year, as this was not originally provided. Run the function from
-WSA2 <- Burn_F(firesData = f.wsa, heardData = WSA$all.data)
+WSA2 <- Burn_F()
+# ASSUMPTION - fires do not superimpose across the time lag window
 
+# Recreating Table 1 - Summary data ----
 WSA2$AREA[1] # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
 WSA_InitialPop = (WSA2$AREA[1])/100*0.06 # assumes carry capacity is 0.06 females/km^2
-WSA_Fire = WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1] # fire events from 1940s onwards
-WSA_Fire_mean = mean(WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1]) # mean annual porportion burned from 1940 onwards
-WSA_Fire_sd = sd(WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1]) # sd annual porportion burned from 1940 onwards
+WSA_Fire = WSA2$PROP_BURN[(1940-1917+1):length(WSA2$PROP_BURN)-1] # fire events from 1940s onwards
+WSA_Fire_mean = mean(WSA2$PROP_BURN[(1940-1917+1):length(WSA2$PROP_BURN)-1]) # mean annual porportion burned from 1940 onwards
+WSA_Fire_sd = sd(WSA2$PROP_BURN[(1940-1917+1):length(WSA2$PROP_BURN)-1]) # sd annual porportion burned from 1940 onwards
 WSA_Beta<- BetaMomentEst(WSA_Fire)
 # TODO: need to change PROP_CUM_BRUN TO PROP_BURN - ie need annual burn proportion for simulation model.
-
-
-
-
 
 # Set vital rates to average number from recorded from Alberta Caribou committee data: CaribouLambda.csv (2002-2008)
 setwd("Z:/GitHub/Boo2019/data")
 caribou<-read.csv("CaribouLambda.csv", header = T)
 setwd("Z:/GitHub/Boo2019/outputs")
-
 caribouWSA<-subset(caribou, caribou$herd == "West_Side_Athabasca_River")
 SadF<-mean(caribouWSA$Adult_Female_Survival)/100 #0.8564. Adult female survival
 Rec<-mean(caribouWSA$Calf_Recruitment)/100 #0.2024. Juvenile recruitment - TODO should this number be 1/2?
 # ASSUMPTION  - these rates are held consistent through time.
 ## Alternately, we could set SadF to 0.85, and Rec to 0.3 in accordance with Environment Canada assumptions
-# STEVE
+
 
 # specify the population structure, based on the above information 
-#MaxFemales/Hectare
-K = WSA2$AREA[1]/100*0.03 # carrying capacity is 0.06 as the upper limit # STEVE: lets use 0.03 females/km^2
+# population carrying capacity is 0.06 caribou/km^2
+K = WSA2$AREA[1]/100*0.03 # carrying capacity is 0.03 females/km^2 as the upper limit
 Pop <- c(K, K*(Rec)) # adult females, and juveniles
 #
 
@@ -658,10 +654,9 @@ pHoof(WSA2, "WSA proportion industrial")
 
 
 # Performing analyses ----
-# TODO: ask steve about Density - is 902 the total population, or just females?
-
 # FIRST FUNCTION: Calcualtes demographics without stochasticity, and only for the duration of time that we have data (69 years here)
-p50s = (WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1]) # all years from 1940s onwards, but not the last year
+p50s = (WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1])
+# Annual proportion of area burned, all years from 1940s onwards, but not the last year
 hoof = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1]# all years from 1940s onwards, but not the last year
 
 WSACaribou<-Caribou_F(K, p50s, hoof, Pop, adult = SadF, fecun = Rec) 

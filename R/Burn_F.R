@@ -14,15 +14,21 @@
 
 burnTable <- data.table::data.table(YEAR = as.numeric(names(WSA$p50s)), BURN = WSA$p50s)
 
-Burn_F <- function(firesData, lagYears = 50) {
-  fire50 <- firesData[, CUM_BURN := sum(BURN), by = YEAR]
-  colsKeep <- c("YEAR", "CUM_BURN")
-  fire50 <- unique(fire50[, names(fire50)[!names(fire50) %in% colsKeep] := NULL])
+Burn_F <- function(firesData, lagYears = 50, colToUse = "PROP_BURN", startYear = 1940) { 
+  # In general the firesData is the data.frame WSA$all.data object (given to F. Stewart)
+  # This function can use both 
+  # WSA$all.data$PROP_BURN --> we *believe* is the annual proportion of caribou herd area burned
+  # WSA$all.data$BURN_INC --> we *believe* is the annual total area burned
   browser()
+  firesData <- data.table::data.table(firesData)
+    fire50 <- firesData[, SUM_BURN := sum(get(colToUse)), by = YEAR]
+  colsKeep <- c("YEAR", "SUM_BURN")
+  fire50 <- unique(fire50[, names(fire50)[!names(fire50) %in% colsKeep] := NULL])
+  
   startPoint <- min(fire50$YEAR)
   
 
-  fire50[[paste0("CUM_Burn", lagYears)]] <- sum(fire50[YEAR-lagYears:YEAR])
+  fire50[[paste0("CUM_BURN", lagYears)]] <- sum(fire50[YEAR-lagYears:YEAR])
   return(hData)
 }
 ####################################
