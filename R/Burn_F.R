@@ -18,7 +18,7 @@ Burn_F <- function(firesData, lagYears = 50, colToUse = "PROP_BURN", startYear =
   return(hdata)
 }
 
-b <- Burn_F(firesData = WSA$all.data)
+#b <- Burn_F(firesData = herd$all.data)
 
 
 ###################################################################################################

@@ -618,19 +618,26 @@ BetaMomentEst(CM_Fire)
 
 
 # WSA ----
-# re-calculate the cummulative burn for each year, as this was not originally provided. Run the function from
-WSA2 <- Burn_F()
+# STEP 1: re-calculate the cummulative burn for each year, as this was not originally provided. Run the function from
+WSA2 <- Burn_F(WSA$all.data, lagYears = 50, colToUse = "PROP_BURN", startYear = 1940)
+WSA2<- b
 # ASSUMPTION - fires do not superimpose across the time lag window
 
-# Recreating Table 1 - Summary data ----
+# STEP 2: Recreating Table 1 - Summary data ----
 WSA2$AREA[1] # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
-WSA_InitialPop = (WSA2$AREA[1])/100*0.06 # assumes carry capacity is 0.06 females/km^2
+WSA_InitialPop = (WSA2$AREA[1])/100*0.06 # assumes carry capacity is 0.06 caribou/km^2
 WSA_Fire = WSA2$PROP_BURN[(1940-1917+1):length(WSA2$PROP_BURN)-1] # fire events from 1940s onwards
 WSA_Fire_mean = mean(WSA2$PROP_BURN[(1940-1917+1):length(WSA2$PROP_BURN)-1]) # mean annual porportion burned from 1940 onwards
 WSA_Fire_sd = sd(WSA2$PROP_BURN[(1940-1917+1):length(WSA2$PROP_BURN)-1]) # sd annual porportion burned from 1940 onwards
 WSA_Beta<- BetaMomentEst(WSA_Fire)
-# TODO: need to change PROP_CUM_BRUN TO PROP_BURN - ie need annual burn proportion for simulation model.
+WSA2$HOOF[WSA2$YEAR == 1980] # 0.117
+WSA2$HOOF[WSA2$YEAR == 2007] # 0.851
 
+# summary plots
+Fires(WSA2, "WSA Annual Proportion Area Burned")
+pHoof(WSA2, "WSA Cummulative Intustrial Footprint")
+
+# STEP 3: specify the population structure, based on the above information
 # Set vital rates to average number from recorded from Alberta Caribou committee data: CaribouLambda.csv (2002-2008)
 setwd("Z:/GitHub/Boo2019/data")
 caribou<-read.csv("CaribouLambda.csv", header = T)
@@ -641,59 +648,336 @@ Rec<-mean(caribouWSA$Calf_Recruitment)/100 #0.2024. Juvenile recruitment - TODO 
 # ASSUMPTION  - these rates are held consistent through time.
 ## Alternately, we could set SadF to 0.85, and Rec to 0.3 in accordance with Environment Canada assumptions
 
-
-# specify the population structure, based on the above information 
 # population carrying capacity is 0.06 caribou/km^2
-K = WSA2$AREA[1]/100*0.03 # carrying capacity is 0.03 females/km^2 as the upper limit
-Pop <- c(K, K*(Rec)) # adult females, and juveniles
-#
-
-# summary plots
-Fires(WSA2, "WSA proportion cumulative burn")
-pHoof(WSA2, "WSA proportion industrial")
+K = (WSA2$AREA[1]/100)*0.06# carrying capacity is 0.03 feamles/km^2
+Pop <- c(K*0.5, K*0.5*Rec) # adult females, and juvenile females
+# ASSUMPITON: 50: sex ratio of calves at survey. Some publications use 60% male.
 
 
-# Performing analyses ----
+# STEP 4: Performing analyses ----
 # FIRST FUNCTION: Calcualtes demographics without stochasticity, and only for the duration of time that we have data (69 years here)
-p50s = (WSA2$PROP_CUM_BURN[(1940-1917+1):length(WSA2$PROP_CUM_BURN)-1])
+# p50s = (WSA2$PROP_BURN[(1940-1917+1):length(WSA2$PROP_BURN)-1]) # I dont believe this is cummulative
 # Annual proportion of area burned, all years from 1940s onwards, but not the last year
+burn = (WSA2$SUM_CUM[(1940-1917+1):length(WSA2$SUM_CUM)-1]) # this should be cummulative. 
+# Annual proportion of area burned, all year from 19402 onwards, but not the last year
 hoof = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1]# all years from 1940s onwards, but not the last year
 
-WSACaribou<-Caribou_F(K, p50s, hoof, Pop, adult = SadF, fecun = Rec) 
+WSACaribou<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+
+# TODO: figure out where the environmental stochasticity comes in (it should be acting on lambda)
 
 
 # SECOND FUNCTION: this function brings in the period of time before our data collection (older than 69 years ago), 
 # and a projected period of time to 2050 (500 years total)
 Area = WSA2$AREA[1]/100# enter herd area size as one number in km^2
-Regime = WSA_Fire # enter the mean of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
+Regime = WSA2$PROP_BURN[(1940-1917+1):length(WSA2$PROP_BURN)-1] # enter the annual proportion of area burned. 
+# TODO: I might need to change this to SUM_CUM?
 IND = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
 
-WSAScenarios<- ScenarioS_F(Area, Regime, IND) # TODO: ask steve about the density estimate (K)
+WSAScenarios<- ScenarioS_F(Area, Regime, IND)
 
 
 # THIRD FUNCTION: this function adds environmental stochasticity to the simulation by repeating it 300 times
 Area = WSA2$AREA[1]/100 # enter herd area size as one number in km^2
-Regime = WSA_Fire # enter the mean of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
+Regime = WSA2$PROP_BURN[(1940-1917+1):length(WSA2$PROP_BURN)-1] # enter the mean of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
 IND = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
 
-WSAruns<-MCRUNS_F(Area, Regime, IND) # TODO: ask steve about mmp
+WSAruns<-MCRUNS_F(Area, Regime, IND)
 
 length(WSAruns$Lambda)/300 # 300 runs
-# 196 years - correct
+# 220 years - correct
 
 #plot
 pLambda(WSAruns, "WSA")
+pYoung(WSAruns, "WSA")
+MeanHerd(WSAScenarios, "WSA") # not working
+ExtProb(WSAScenarios, "WSA") # not working
 
 
 # Performing experiments ----
 # TODO: perform the experiments here, by altering variables from ScenarioS independently and plotting?
+# experiment1: RE  - done above
+# experiment2: LD - change carrying capacity from 0.03 to 0.02 (Initial set up Pop, and SenarioS)
+# experiment3: HF - increase fire burn rate to 0.01 (ScenarioS and MCRUNS)
+# experiment4: NE - remove environmental stochasticity - no sure where this is done
 
 # Calculate the extinctions and YCRITS ----
 
-# TODO: Ask Steve how to repeat Table 2 from the Nowak manuscript (i.e. calculate the probability of persistence)
-# TODO: Ask Steve how he got his logic.gz files. I'll need to do this for all populations so that I can re-make the figures
-# TODO: Go through plots with Steve - Mean lambda currently working, but Extinction, Nt, not
+#####################################################################################################################################
+# LS ----
+LS2 <- Burn_F(LS$all.data, lagYears = 50, colToUse = "PROP_BURN", startYear = 1940)
+# ASSUMPTION - fires do not superimpose across the time lag window
+
+# STEP 2: Recreating Table 1 - Summary data ----
+LS2$AREA[1] # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
+LS_InitialPop = (LS2$AREA[1])/100*0.06 # assumes carry capacity is 0.06 caribou/km^2
+LS_Fire = LS2$PROP_BURN[(1940-1917+1):length(LS2$PROP_BURN)-1] # fire events from 1940s onwards
+LS_Fire_mean = mean(LS2$PROP_BURN[(1940-1917+1):length(LS2$PROP_BURN)-1]) # mean annual porportion burned from 1940 onwards
+LS_Fire_sd = sd(LS2$PROP_BURN[(1940-1917+1):length(LS2$PROP_BURN)-1]) # sd annual porportion burned from 1940 onwards
+LS_Beta<- BetaMomentEst(LS_Fire)
+LS2$HOOF[LS2$YEAR == 1980]
+LS2$HOOF[LS2$YEAR == 2007]
+
+# summary plots
+Fires(LS2, "LS Annual Proportion Area Burned")
+pHoof(LS2, "LS Cummulative Intustrial Footprint")
+
+# STEP 3: specify the population structure, based on the above information
+# Set vital rates to average number from recorded from Alberta Caribou committee data: CaribouLambda.csv (2002-2008)
+setwd("Z:/GitHub/Boo2019/data")
+caribou<-read.csv("CaribouLambda.csv", header = T)
+setwd("Z:/GitHub/Boo2019/outputs")
+caribouLS<-subset(caribou, caribou$herd == "Little_Smoky")
+SadF<-mean(caribouLS$Adult_Female_Survival)/100 #0.8461 Adult female survival
+Rec<-mean(caribouLS$Calf_Recruitment)/100 #0.1452 Juvenile recruitment - TODO should this number be 1/2?
+# ASSUMPTION  - these rates are held consistent through time.
+## Alternately, we could set SadF to 0.85, and Rec to 0.3 in accordance with Environment Canada assumptions
+
+# population carrying capacity is 0.06 caribou/km^2
+K = (LS2$AREA[1]/100)*0.06# carrying capacity is 0.03 feamles/km^2
+Pop <- c(K*0.5, K*0.5*Rec) # adult females, and juvenile females
+# ASSUMPITON: 50: sex ratio of calves at survey. Some publications use 60% male.
 
 
+# STEP 4: Performing analyses ----
+# FIRST FUNCTION: Calcualtes demographics without stochasticity, and only for the duration of time that we have data (69 years here)
+# p50s = (LS2$PROP_BURN[(1940-1917+1):length(LS2$PROP_BURN)-1]) # I dont believe this is cummulative
+# Annual proportion of area burned, all years from 1940s onwards, but not the last year
+burn = (LS2$SUM_CUM[(1940-1917+1):length(LS2$SUM_CUM)-1]) # this should be cummulative. 
+# Annual proportion of area burned, all year from 19402 onwards, but not the last year
+hoof = LS2$HOOF[(1940-1917 +1):length(LS2$HOOF)-1]# all years from 1940s onwards, but not the last year
+
+LSCaribou<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+
+# SECOND FUNCTION: this function brings in the period of time before our data collection (older than 69 years ago), 
+# and a projected period of time to 2050 (500 years total)
+Area = LS2$AREA[1]/100# enter herd area size as one number in km^2
+Regime = LS2$PROP_BURN[(1940-1917+1):length(LS2$PROP_BURN)-1] # enter the annual proportion of area burned. 
+# TODO: I might need to change this to SUM_CUM?
+IND = LS2$HOOF[(1940-1917 +1):length(LS2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
+
+LSScenarios<- ScenarioS_F(Area, Regime, IND)
 
 
+# THIRD FUNCTION: this function adds environmental stochasticity to the simulation by repeating it 300 times
+Area = LS2$AREA[1]/100 # enter herd area size as one number in km^2
+Regime = LS2$PROP_BURN[(1940-1917+1):length(LS2$PROP_BURN)-1] # enter the mean of the fire regime (from Table 1, or above area specific code (i.e. LS_Fire))
+IND = LS2$HOOF[(1940-1917 +1):length(LS2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
+
+LSruns<-MCRUNS_F(Area, Regime, IND)
+
+#plot
+pLambda(LSruns, "LS")
+pYoung(LSruns, "LS")
+MeanHerd(LSScenarios, "LS") # not working
+ExtProb(LSScenarios, "LS") # not working
+
+##################################################################################################################################
+# CLAWR ----
+CLAWR2 <- Burn_F(CLAWR$all.data, lagYears = 50, colToUse = "PROP_BURN", startYear = 1940)
+# ASSUMPTION - fires do not superimpose across the time lag window
+
+# STEP 2: Recreating Table 1 - Summary data ----
+f.clawr$AREA_HERD[1] # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
+CLAWR_InitialPop = (f.clawr$AREA_HERD[1])/100*0.06 # assumes carry capacity is 0.06 caribou/km^2
+CLAWR_Fire = CLAWR2$PROP_BURN[(1940-1917+1):length(CLAWR2$PROP_BURN)-1] # fire events from 1940s onwards
+CLAWR_Fire_mean = mean(CLAWR2$PROP_BURN[(1940-1917+1):length(CLAWR2$PROP_BURN)-1]) # mean annual porportion burned from 1940 onwards
+CLAWR_Fire_sd = sd(CLAWR2$PROP_BURN[(1940-1917+1):length(CLAWR2$PROP_BURN)-1]) # sd annual porportion burned from 1940 onwards
+CLAWR_Beta<- BetaMomentEst(CLAWR_Fire)
+CLAWR2$HOOF[CLAWR2$YEAR == 1980]
+CLAWR2$HOOF[CLAWR2$YEAR == 2007]
+
+# summary plots
+Fires(CLAWR2, "CLAWR Annual Proportion Area Burned")
+pHoof(CLAWR2, "CLAWR Cummulative Intustrial Footprint")
+
+# STEP 3: specify the population structure, based on the above information
+# Set vital rates to average number from recorded from Alberta Caribou committee data: CaribouLambda.csv (2002-2008)
+setwd("Z:/GitHub/Boo2019/data")
+caribou<-read.csv("CaribouLambda.csv", header = T)
+setwd("Z:/GitHub/Boo2019/outputs")
+caribouCLAWR<-na.omit(subset(caribou, caribou$herd == "Cold_Lake_Air_Weapons_Range"))
+SadF<-mean(caribouCLAWR$Adult_Female_Survival)/100 #0.801 Adult female survival
+Rec<-mean(caribouCLAWR$Calf_Recruitment)/100 #0.169 Juvenile recruitment - TODO should this number be 1/2?
+# interesting  - the exact same as LS
+# ASSUMPTION  - these rates are held consistent through time.
+## Alternately, we could set SadF to 0.85, and Rec to 0.3 in accordance with Environment Canada assumptions
+
+# population carrying capacity is 0.06 caribou/km^2
+K = (f.clawr$AREA_HERD[1]/100)*0.06# carrying capacity is 0.03 feamles/km^2
+Pop <- c(K*0.5, K*0.5*Rec) # adult females, and juvenile females
+# ASSUMPITON: 50: sex ratio of calves at survey. Some publications use 60% male.
+
+
+# STEP 4: Performing analyses ----
+# FIRST FUNCTION: Calcualtes demographics without stochasticity, and only for the duration of time that we have data (69 years here)
+# p50s = (CLAWR2$PROP_BURN[(1940-1917+1):length(CLAWR2$PROP_BURN)-1]) # I dont believe this is cummulative
+# Annual proportion of area burned, all years from 1940s onwards, but not the last year
+burn = (CLAWR2$SUM_CUM[(1940-1917+1):length(CLAWR2$SUM_CUM)-1]) # this should be cummulative. 
+# Annual proportion of area burned, all year from 19402 onwards, but not the last year
+hoof = CLAWR2$HOOF[(1940-1917 +1):length(CLAWR2$HOOF)-1]# all years from 1940s onwards, but not the last year
+
+CLAWRCaribou<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+
+# SECOND FUNCTION: this function brings in the period of time before our data collection (older than 69 years ago), 
+# and a projected period of time to 2050 (500 years total)
+Area = CLAWR2$AREA[1]/100# enter herd area size as one number in km^2
+Regime = CLAWR2$PROP_BURN[(1940-1917+1):length(CLAWR2$PROP_BURN)-1] # enter the annual proportion of area burned. 
+# TODO: I might need to change this to SUM_CUM?
+IND = CLAWR2$HOOF[(1940-1917 +1):length(CLAWR2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
+
+CLAWRScenarios<- ScenarioS_F(Area, Regime, IND)
+
+
+# THIRD FUNCTION: this function adds environmental stochasticity to the simulation by repeating it 300 times
+Area = CLAWR2$AREA[1]/100 # enter herd area size as one number in km^2
+Regime = CLAWR2$PROP_BURN[(1940-1917+1):length(CLAWR2$PROP_BURN)-1] # enter the mean of the fire regime (from Table 1, or above area specific code (i.e. CLAWR_Fire))
+IND = CLAWR2$HOOF[(1940-1917 +1):length(CLAWR2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
+
+CLAWRruns<-MCRUNS_F(Area, Regime, IND)
+
+#plot
+pLambda(CLAWRruns, "CLAWR")
+pYoung(CLAWRruns, "CLAWR")
+MeanHerd(CLAWRScenarios, "CLAWR") # not working
+ExtProb(CLAWRScenarios, "CLAWR") # not working
+
+###################################################################################################################################
+# RE ----
+RE2 <- Burn_F(RE$all.data, lagYears = 50, colToUse = "PROP_BURN", startYear = 1940)
+# ASSUMPTION - fires do not superimpose across the time lag window
+
+# STEP 2: Recreating Table 1 - Summary data ----
+RE2$AREA[1] # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
+RE_InitialPop = (RE2$AREA[1])/100*0.06 # assumes carry capacity is 0.06 caribou/km^2
+RE_Fire = RE2$PROP_BURN[(1940-1917+1):length(RE2$PROP_BURN)-1] # fire events from 1940s onwards
+RE_Fire_mean = mean(RE2$PROP_BURN[(1940-1917+1):length(RE2$PROP_BURN)-1]) # mean annual porportion burned from 1940 onwards
+RE_Fire_sd = sd(RE2$PROP_BURN[(1940-1917+1):length(RE2$PROP_BURN)-1]) # sd annual porportion burned from 1940 onwards
+RE_Beta<- BetaMomentEst(RE_Fire)
+RE2$HOOF[RE2$YEAR == 1980]
+RE2$HOOF[RE2$YEAR == 2007]
+
+# summary plots
+Fires(RE2, "RE Annual Proportion Area Burned")
+pHoof(RE2, "RE Cummulative Intustrial Footprint")
+
+# STEP 3: specify the population structure, based on the above information
+# Set vital rates to average number from recorded from Alberta Caribou committee data: CaribouLambda.csv (2002-2008)
+setwd("Z:/GitHub/Boo2019/data")
+caribou<-read.csv("CaribouLambda.csv", header = T)
+setwd("Z:/GitHub/Boo2019/outputs")
+caribouRE<-subset(caribou, caribou$herd == "Red_Earth")
+SadF<-mean(caribouRE$Adult_Female_Survival)/100 #0.8458 Adult female survival
+Rec<-mean(caribouRE$Calf_Recruitment)/100 #0.1347 Juvenile recruitment - TODO should this number be 1/2?
+# ASSUMPTION  - these rates are held consistent through time.
+## Alternately, we could set SadF to 0.85, and Rec to 0.3 in accordance with Environment Canada assumptions
+
+# population carrying capacity is 0.06 caribou/km^2
+K = (RE2$AREA[1]/100)*0.06# carrying capacity is 0.03 feamles/km^2
+Pop <- c(K*0.5, K*0.5*Rec) # adult females, and juvenile females
+# ASSUMPITON: 50: sex ratio of calves at survey. Some publications use 60% male.
+
+
+# STEP 4: Performing analyses ----
+# FIRST FUNCTION: Calcualtes demographics without stochasticity, and only for the duration of time that we have data (69 years here)
+# p50s = (RE2$PROP_BURN[(1940-1917+1):length(RE2$PROP_BURN)-1]) # I dont believe this is cummulative
+# Annual proportion of area burned, all years from 1940s onwards, but not the last year
+burn = (RE2$SUM_CUM[(1940-1917+1):length(RE2$SUM_CUM)-1]) # this should be cummulative. 
+# Annual proportion of area burned, all year from 19402 onwards, but not the last year
+hoof = RE2$HOOF[(1940-1917 +1):length(RE2$HOOF)-1]# all years from 1940s onwards, but not the last year
+
+RECaribou<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+
+# SECOND FUNCTION: this function brings in the period of time before our data collection (older than 69 years ago), 
+# and a projected period of time to 2050 (500 years total)
+Area = RE2$AREA[1]/100# enter herd area size as one number in km^2
+Regime = RE2$PROP_BURN[(1940-1917+1):length(RE2$PROP_BURN)-1] # enter the annual proportion of area burned. 
+# TODO: I might need to change this to SUM_CUM?
+IND = RE2$HOOF[(1940-1917 +1):length(RE2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
+
+REScenarios<- ScenarioS_F(Area, Regime, IND)
+
+
+# THIRD FUNCTION: this function adds environmental stochasticity to the simulation by repeating it 300 times
+Area = RE2$AREA[1]/100 # enter herd area size as one number in km^2
+Regime = RE2$PROP_BURN[(1940-1917+1):length(RE2$PROP_BURN)-1] # enter the mean of the fire regime (from Table 1, or above area specific code (i.e. RE_Fire))
+IND = RE2$HOOF[(1940-1917 +1):length(RE2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
+
+REruns<-MCRUNS_F(Area, Regime, IND)
+
+#plot
+pLambda(REruns, "RE")
+pYoung(REruns, "RE")
+MeanHerd(REScenarios, "RE") # not working
+ExtProb(REScenarios, "RE") # not working
+
+
+##################################################################################################################################
+# CM ----
+
+CM2 <- Burn_F(CM$all.data, lagYears = 50, colToUse = "PROP_BURN", startYear = 1940)
+# ASSUMPTION - fiCMs do not superimpose across the time lag window
+
+# STEP 2: CMcCMating Table 1 - Summary data ----
+CM2$AREA[1] # in ha. Divide by 100 to get km^2 (which is pCMsented in Table 1)
+CM_InitialPop = (CM2$AREA[1])/100*0.06 # assumes carry capacity is 0.06 caribou/km^2
+CM_Fire = CM2$PROP_BURN[(1940-1917+1):length(CM2$PROP_BURN)-1] # fiCM events from 1940s onwards
+CM_Fire_mean = mean(CM2$PROP_BURN[(1940-1917+1):length(CM2$PROP_BURN)-1]) # mean annual porportion burned from 1940 onwards
+CM_Fire_sd = sd(CM2$PROP_BURN[(1940-1917+1):length(CM2$PROP_BURN)-1]) # sd annual porportion burned from 1940 onwards
+CM_Beta<- BetaMomentEst(CM_Fire)
+CM2$HOOF[CM2$YEAR == 1980]
+CM2$HOOF[CM2$YEAR == 2007]
+
+# summary plots
+Fires(CM2, "CM Annual Proportion ACMa Burned")
+pHoof(CM2, "CM Cummulative Intustrial Footprint")
+
+# STEP 3: specify the population structuCM, based on the above information
+# Set vital rates to average number from CMcorded from Alberta Caribou committee data: CaribouLambda.csv (2002-2008)
+setwd("Z:/GitHub/Boo2019/data")
+caribou<-read.csv("CaribouLambda.csv", header = T)
+setwd("Z:/GitHub/Boo2019/outputs")
+caribouCM<-subset(caribou, caribou$herd == "Caribou_Mountains")
+SadF<-mean(caribouCM$Adult_Female_Survival)/100 #0.812 Adult female survival
+Rec<-mean(caribouCM$Calf_Recruitment)/100 #0.156 Juvenile CMcruitment - TODO should this number be 1/2?
+# ASSUMPTION  - these rates aCM held consistent through time.
+## Alternately, we could set SadF to 0.85, and CMc to 0.3 in accordance with Environment Canada assumptions
+
+# population carrying capacity is 0.06 caribou/km^2
+K = (CM2$AREA[1]/100)*0.06# carrying capacity is 0.03 feamles/km^2
+Pop <- c(K*0.5, K*0.5*Rec) # adult females, and juvenile females
+# ASSUMPITON: 50: sex ratio of calves at survey. Some publications use 60% male.
+
+
+# STEP 4: Performing analyses ----
+# FIRST FUNCTION: Calcualtes demographics without stochasticity, and only for the duration of time that we have data (69 years heCM)
+# p50s = (CM2$PROP_BURN[(1940-1917+1):length(CM2$PROP_BURN)-1]) # I dont believe this is cummulative
+# Annual proportion of aCMa burned, all years from 1940s onwards, but not the last year
+burn = (CM2$SUM_CUM[(1940-1917+1):length(CM2$SUM_CUM)-1]) # this should be cummulative. 
+# Annual proportion of aCMa burned, all year from 19402 onwards, but not the last year
+hoof = CM2$HOOF[(1940-1917 +1):length(CM2$HOOF)-1]# all years from 1940s onwards, but not the last year
+
+CMCaribou<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+
+# SECOND FUNCTION: this function brings in the period of time befoCM our data collection (older than 69 years ago), 
+# and a projected period of time to 2050 (500 years total)
+Area = CM2$AREA[1]/100# enter herd aCMa size as one number in km^2
+Regime = CM2$PROP_BURN[(1940-1917+1):length(CM2$PROP_BURN)-1] # enter the annual proportion of aCMa burned. 
+# TODO: I might need to change this to SUM_CUM?
+IND = CM2$HOOF[(1940-1917 +1):length(CM2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
+
+CMScenarios<- ScenarioS_F(Area, Regime, IND)
+
+
+# THIRD FUNCTION: this function adds environmental stochasticity to the simulation by CMpeating it 300 times
+Area = CM2$AREA[1]/100 # enter herd aCMa size as one number in km^2
+Regime = CM2$PROP_BURN[(1940-1917+1):length(CM2$PROP_BURN)-1] # enter the mean of the fiCM CMgime (from Table 1, or above aCMa specific code (i.e. CM_FiCM))
+IND = CM2$HOOF[(1940-1917 +1):length(CM2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
+
+CMruns<-MCRUNS_F(Area, Regime, IND)
+
+#plot
+pLambda(CMruns, "CM")
+pYoung(CMruns, "CM")
+MeanHerd(CMScenarios, "CM") # not working
+ExtProb(CMScenarios, "CM") # not working

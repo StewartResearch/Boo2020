@@ -1,4 +1,4 @@
-Caribou_F<-function (K, p50s, hoof, SUM_CUM, adult, fecun)
+Caribou_F<-function (K, hoof, burn, adult, fecun, Pop)
   # K is the population carrying capacity - area (in kn^2) * 0.06 #ASSUMPTION
   # SUM_CUM is the cummulative annual proportion of area burned over 50 year time windows
   # hoof is the prortion area of industrial footprint
@@ -27,7 +27,7 @@ Caribou_F<-function (K, p50s, hoof, SUM_CUM, adult, fecun)
       }
     
   }
-  N <- length(p50s)
+  N <- length(burn)
   stopifnot(N == length(hoof))
   NAF <- vector("numeric", N)
   NYF <- vector("numeric", N)
@@ -40,7 +40,7 @@ Caribou_F<-function (K, p50s, hoof, SUM_CUM, adult, fecun)
   AdultFecundity <- vector("numeric", N)
   eig <- list()
   dom.eig <- list()
-  Lambda[1] <- 1.192 - (0.31 * hoof[1]) - (0.29 * p50s[1])
+  Lambda[1] <- 1.192 - (0.31 * hoof[1]) - (0.29 * burn[1])
   size[1] <- sum(Pop)
   NAF[1] <- Pop[2]
   NYF[1] <- Pop[1]
@@ -62,7 +62,7 @@ Caribou_F<-function (K, p50s, hoof, SUM_CUM, adult, fecun)
     NYF[year] <- run[[year]][1]
     r[year] <- NYF[year]/NAF[year]
     Lambda[year] <- 1.192 - 0.31 * hoof[[year]] - 0.29 * 
-      p50s[[year]]
+      burn[[year]]
     AdultFecundity[[year]] <- DensDep(N = sum(run[[year]]), # we assume density dependence acts on adults, and not on juveniles
                                       K = K, adult)
     juv[[year]] <- sigj(Lambda[year], AdultFecundity[[year]], 

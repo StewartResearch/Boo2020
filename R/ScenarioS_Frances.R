@@ -23,7 +23,7 @@ ScenarioS_F<-function (Area, Regime, IND, CF = 1, Density = 0.06)
   fp2 <- IND
   Stage2 <- Caribou(K = K, p50s = pYoung2, hoof = fp2, Pop = Stage1$EndPop)
   print(paste("EndPop2 = ", Stage2$EndPop, sep = ""))
-  CurRegime <- rev(Regime)[1:length(Regime)] # TODO: MAYBE. take the last 50 years and use that. To revisit with Steve.
+  CurRegime <- rev(Regime)[1:length(Regime)] 
   tmp3 <- FireModelS(CurRegime, N = 50, T = 200, AgeStruct = AS2, 
                      SimFire = TRUE)
   pYoung3 <- tmp3$Young
