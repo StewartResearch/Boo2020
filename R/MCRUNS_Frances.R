@@ -1,4 +1,4 @@
-MCRUNS_F<-function (Area, Regime, IND, CF = 1, Density = 0.06, #mmp = 5, 
+MCRUNS_F<-function (Area, Regime, IND, CF = 1, Density, #mmp = 5, 
                     Reps = 300) 
   # not sure what mmp was needed for - it is never called
 {

@@ -3,7 +3,7 @@ MeanHerd<-function(Herd, Title = ""){ #plot mean herd size   MeanHerd(clawrmc, "
   
   
   MH.CI <- apply(Herd$Nt, 2, function(x){
-    c(quantile(x,0.05),  mean(x), quantile(x, 0.95))
+    c(quantile(x[,"Nt"],0.05),  mean(x[,"Nt"]), quantile(x[,"Nt"], 0.95))
   })
   PP<-function(x = MH.CI){
     Y1<-1837

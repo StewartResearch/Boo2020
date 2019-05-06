@@ -674,7 +674,7 @@ Regime = WSA2$PROP_BURN[(1940-1917+1):length(WSA2$PROP_BURN)-1] # enter the annu
 # TODO: I might need to change this to SUM_CUM?
 IND = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
 
-WSAScenarios<- ScenarioS_F(Area, Regime, IND)
+WSAScenarios<- ScenarioS_F(Area, Regime, IND, Density = 0.06)
 
 
 # THIRD FUNCTION: this function adds environmental stochasticity to the simulation by repeating it 300 times
@@ -682,24 +682,53 @@ Area = WSA2$AREA[1]/100 # enter herd area size as one number in km^2
 Regime = WSA2$PROP_BURN[(1940-1917+1):length(WSA2$PROP_BURN)-1] # enter the mean of the fire regime (from Table 1, or above area specific code (i.e. WSA_Fire))
 IND = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
 
-WSAruns<-MCRUNS_F(Area, Regime, IND)
+WSAruns<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
 
 length(WSAruns$Lambda)/300 # 300 runs
 # 220 years - correct
 
 #plot
-pLambda(WSAruns, "WSA")
-pYoung(WSAruns, "WSA")
+pdf("WSA_RS.pdf", height = 5, width  = 4)
+pLambda(WSAruns, "WSA_RS")
+dev.off()
+pYoung(WSAruns, "WSA ")
 MeanHerd(WSAScenarios, "WSA") # not working
 ExtProb(WSAScenarios, "WSA") # not working
 
+# calculate extinctions:
+# TODO:
+
 
 # Performing experiments ----
-# TODO: perform the experiments here, by altering variables from ScenarioS independently and plotting?
-# experiment1: RE  - done above
-# experiment2: LD - change carrying capacity from 0.03 to 0.02 (Initial set up Pop, and SenarioS)
-# experiment3: HF - increase fire burn rate to 0.01 (ScenarioS and MCRUNS)
-# experiment4: NE - remove environmental stochasticity - no sure where this is done
+# EXPERIMENT 1: RE  - done above
+# EXPERIMENT 2: LD - change carrying capacity from 0.03 to 0.02
+K = (WSA2$AREA[1]/100)*0.04# carrying capacity is 0.02 feamles/km^2
+Pop <- c(K*0.5, K*0.5*Rec) # adult females, and juvenile females
+WSACaribou_LC<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+WSAScenarioS_LD<- ScenarioS_F(Area, Regime, IND, Density = 0.04)
+WSAruns_LD<-MCRUNS_F(Area, Regime, IND, Density = 0.04)
+pdf("WSA_LD.pdf", height = 5, width  = 4)
+pLambda(WSAruns_LD, "WSA_LD")
+dev.off()
+# EXPERIMENT 3: HF - increase fire burn rate to 0.01 (ScenarioS and MCRUNS)
+K = (WSA2$AREA[1]/100)*0.06# carrying capacity is 0.03 feamles/km^2
+Pop <- c(K*0.5, K*0.5*Rec) # adult females, and juvenile females
+WSACaribou_HF<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+WSAScenarioS_HF<- ScenarioS_F(Area, Regime = seq(from = 0.01, to = 0.01, length.out = length(WSA_Fire)), IND, Density = 0.06)
+WSAruns_HF<-MCRUNS_F(Area, Regime = seq(from = 0.01, to = 0.01, length.out = length(WSA_Fire)), IND, Density = 0.06)
+pdf("WSA_HF.pdf", height = 5, width  = 4)
+pLambda(WSAruns_HF, "WSA_HF")
+dev.off()
+# experiment4: NE - remove environmental stochasticity - not sure where this is done
+
+# Create a file of all WSA graphs ----
+pdf("WSA graphs.pdf", height = 4, width = 5, onefile = TRUE)
+Fires(WSA2, "WSA Annual Proportion Area Burned")
+pHoof(WSA2, "WSA Cummulative Intustrial Footprint")
+pLambda(WSAruns, "WSA_RS")
+pLambda(WSAruns_LD, "WSA_LD")
+pLambda(WSAruns_HF, "WSA_HF")
+dev.off()
 
 # Calculate the extinctions and YCRITS ----
 
@@ -837,8 +866,8 @@ IND = CLAWR2$HOOF[(1940-1917 +1):length(CLAWR2$HOOF)-1] # enter the industrial d
 CLAWRruns<-MCRUNS_F(Area, Regime, IND)
 
 #plot
-pLambda(CLAWRruns, "CLAWR")
-pYoung(CLAWRruns, "CLAWR")
+pLambda(CLAWRruns, "CL")
+pYoung(CLAWRruns, "CL")
 MeanHerd(CLAWRScenarios, "CLAWR") # not working
 ExtProb(CLAWRScenarios, "CLAWR") # not working
 
@@ -977,7 +1006,27 @@ IND = CM2$HOOF[(1940-1917 +1):length(CM2$HOOF)-1] # enter the industrial disturb
 CMruns<-MCRUNS_F(Area, Regime, IND)
 
 #plot
+pdf("CM_RS.pdf", width = 5, height = 4)
 pLambda(CMruns, "CM")
+dev.off()
 pYoung(CMruns, "CM")
 MeanHerd(CMScenarios, "CM") # not working
 ExtProb(CMScenarios, "CM") # not working
+
+#####################################################################################################################################
+# FIGURES ----
+# TODO: 
+# Figure 2
+# make a multi-pannel plot all the simulations as a central figure of this manuscript.
+# "Lambda" on the y-axis
+# "Year" on the x-axis
+## tick marks on left most y-axies
+## tick marcks on bottom most x-axies
+### header: "RS", "LD", "HF"
+# order of PDF figures
+# WSA_RS  WSA_LD  WSA_HF
+# LS_RS   LS_LD   LS_HF
+# CL_RS   CL_LD   CL_HF
+# RE_RS   RE_LD   RE_HF
+# CM_RS   CM_LD   CM_HF
+
