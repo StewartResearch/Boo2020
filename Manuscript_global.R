@@ -695,13 +695,14 @@ pYoung(WSAruns, "WSA ")
 MeanHerd(WSAScenarios, "WSA") # not working
 ExtProb(WSAScenarios, "WSA") # not working
 
-# calculate extinctions:
-# TODO:
-
+# calculate extinctions: ----
+# TODO: calcualte p extinction and YCRIT values to put into Table 2
 
 # Performing experiments ----
 # EXPERIMENT 1: RE  - done above
 # EXPERIMENT 2: LD - change carrying capacity from 0.03 to 0.02
+SadF<-mean(caribouWSA$Adult_Female_Survival)/100 #0.8564. Adult female survival
+Rec<-mean(caribouWSA$Calf_Recruitment)/100
 K = (WSA2$AREA[1]/100)*0.04# carrying capacity is 0.02 feamles/km^2
 Pop <- c(K*0.5, K*0.5*Rec) # adult females, and juvenile females
 WSACaribou_LC<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
@@ -719,7 +720,6 @@ WSAruns_HF<-MCRUNS_F(Area, Regime = seq(from = 0.01, to = 0.01, length.out = len
 pdf("WSA_HF.pdf", height = 5, width  = 4)
 pLambda(WSAruns_HF, "WSA_HF")
 dev.off()
-# experiment4: NE - remove environmental stochasticity - not sure where this is done
 
 # Create a file of all WSA graphs ----
 pdf("WSA graphs.pdf", height = 4, width = 5, onefile = TRUE)
@@ -730,7 +730,6 @@ pLambda(WSAruns_LD, "WSA_LD")
 pLambda(WSAruns_HF, "WSA_HF")
 dev.off()
 
-# Calculate the extinctions and YCRITS ----
 
 #####################################################################################################################################
 # LS ----
@@ -796,10 +795,49 @@ IND = LS2$HOOF[(1940-1917 +1):length(LS2$HOOF)-1] # enter the industrial disturb
 LSruns<-MCRUNS_F(Area, Regime, IND)
 
 #plot
+pdf("LS_RS.pdf", height = 5, width = 4)
 pLambda(LSruns, "LS")
+dev.off()
+
 pYoung(LSruns, "LS")
 MeanHerd(LSScenarios, "LS") # not working
 ExtProb(LSScenarios, "LS") # not working
+
+# calculate extinctions: ----
+# TODO: calcualte p extinction and YCRIT values to put into Table 2
+
+# Performing experiments ----
+# EXPERIMENT 1: RE  - done above
+# EXPERIMENT 2: LD - change carrying capacity from 0.03 to 0.02
+SadF<-mean(caribouLS$Adult_Female_Survival)/100 #0.8461 Adult female survival
+Rec<-mean(caribouLS$Calf_Recruitment)/100 
+K = (LS2$AREA[1]/100)*0.04# carrying capacity is 0.02 feamles/km^2
+Pop <- c(K*0.5, K*0.5*Rec) # adult females, and juvenile females
+LSCaribou_LD<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+LSScenarioS_LD<- ScenarioS_F(Area, Regime, IND, Density = 0.04)
+LSruns_LD<-MCRUNS_F(Area, Regime, IND, Density = 0.04)
+pdf("LS_LD.pdf", height = 5, width  = 4)
+pLambda(LSruns_LD, "LS_LD")
+dev.off()
+# EXPERIMENT 3: HF - increase fire burn rate to 0.01 (ScenarioS and MCRUNS)
+K = (LS2$AREA[1]/100)*0.06# carrying capacity is 0.03 feamles/km^2
+Pop <- c(K*0.5, K*0.5*Rec) # adult females, and juvenile females
+LSCaribou_HF<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+LSScenarioS_HF<- ScenarioS_F(Area, Regime = seq(from = 0.01, to = 0.01, length.out = length(WSA_Fire)), IND, Density = 0.06)
+LSruns_HF<-MCRUNS_F(Area, Regime = seq(from = 0.01, to = 0.01, length.out = length(WSA_Fire)), IND, Density = 0.06)
+pdf("LS_HF.pdf", height = 5, width  = 4)
+pLambda(LSruns_HF, "LS_HF")
+dev.off()
+
+# Create a file of all LS graphs ----
+pdf("LS graphs.pdf", height = 4, width = 5, onefile = TRUE)
+Fires(LS2, "LS Annual Proportion Area Burned")
+pHoof(LS2, "LS Cummulative Intustrial Footprint")
+pLambda(LSruns, "LS_RS")
+pLambda(LSruns_LD, "LS_LD")
+pLambda(LSruns_HF, "LS_HF")
+dev.off()
+
 
 ##################################################################################################################################
 # CLAWR ----
@@ -857,7 +895,6 @@ IND = CLAWR2$HOOF[(1940-1917 +1):length(CLAWR2$HOOF)-1] # enter the industrial d
 
 CLAWRScenarios<- ScenarioS_F(Area, Regime, IND)
 
-
 # THIRD FUNCTION: this function adds environmental stochasticity to the simulation by repeating it 300 times
 Area = CLAWR2$AREA[1]/100 # enter herd area size as one number in km^2
 Regime = CLAWR2$PROP_BURN[(1940-1917+1):length(CLAWR2$PROP_BURN)-1] # enter the mean of the fire regime (from Table 1, or above area specific code (i.e. CLAWR_Fire))
@@ -866,10 +903,44 @@ IND = CLAWR2$HOOF[(1940-1917 +1):length(CLAWR2$HOOF)-1] # enter the industrial d
 CLAWRruns<-MCRUNS_F(Area, Regime, IND)
 
 #plot
-pLambda(CLAWRruns, "CL")
+pdf("CL_RS.pdf", height = 5, width = 4)
+pLambda(CLAWRruns, "CL_RS")
+dev.off()
 pYoung(CLAWRruns, "CL")
 MeanHerd(CLAWRScenarios, "CLAWR") # not working
 ExtProb(CLAWRScenarios, "CLAWR") # not working
+
+# Performing experiments ----
+# EXPERIMENT 1: RE  - done above
+# EXPERIMENT 2: LD - change carrying capacity from 0.03 to 0.02
+SadF<-mean(caribouCLAWR$Adult_Female_Survival)/100 #0.801 Adult female survival
+Rec<-mean(caribouCLAWR$Calf_Recruitment)/100
+K = (f.clawr$AREA_HERD[1]/100)*0.04# carrying capacity is 0.02 feamles/km^2
+Pop <- c(K*0.5, K*0.5*Rec) # adult females, and juvenile females
+CLAWRCaribou_LD<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+CLAWRScenarioS_LD<- ScenarioS_F(Area, Regime, IND, Density = 0.04)
+CLAWRruns_LD<-MCRUNS_F(Area, Regime, IND, Density = 0.04)
+pdf("CLAWR_LD.pdf", height = 5, width  = 4)
+pLambda(CLAWRruns_LD, "CLAWR_LD")
+dev.off()
+# EXPERIMENT 3: HF - increase fire burn rate to 0.01 (ScenarioS and MCRUNS)
+K = (f.clawr$AREA_HERD[1]/100)*0.06# carrying capacity is 0.02 feamles/km^2
+Pop <- c(K*0.5, K*0.5*Rec) # adult females, and juvenile females
+CLAWRCaribou_HF<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+CLAWRScenarioS_HF<- ScenarioS_F(Area, Regime = seq(from = 0.01, to = 0.01, length.out = length(WSA_Fire)), IND, Density = 0.06)
+CLAWRruns_HF<-MCRUNS_F(Area, Regime = seq(from = 0.01, to = 0.01, length.out = length(WSA_Fire)), IND, Density = 0.06)
+pdf("CLAWR_HF.pdf", height = 5, width  = 4)
+pLambda(CLAWRruns_HF, "CLAWR_HF")
+dev.off()
+
+# Create a file of all LS graphs ----
+pdf("CL graphs.pdf", height = 4, width = 5, onefile = TRUE)
+Fires(CLAWR2, "CL Annual Proportion Area Burned")
+pHoof(CLAWR2, "CL Cummulative Intustrial Footprint")
+pLambda(CLAWRruns, "CL_RS")
+pLambda(CLAWRruns_LD, "CL_LD")
+pLambda(CLAWRruns_HF, "CL_HF")
+dev.off()
 
 ###################################################################################################################################
 # RE ----
@@ -940,6 +1011,39 @@ pYoung(REruns, "RE")
 MeanHerd(REScenarios, "RE") # not working
 ExtProb(REScenarios, "RE") # not working
 
+
+
+# Performing experiments ----
+# EXPERIMENT 1: RE  - done above
+# EXPERIMENT 2: LD - change carrying capacity from 0.03 to 0.02
+SadF<-mean(caribouRE$Adult_Female_Survival)/100 #0.8458 Adult female survival
+Rec<-mean(caribouRE$Calf_Recruitment)/100 #0.1347 Juvenile recruitment - TODO should this number be 1/2?
+K = (RE2$AREA[1]/100)*0.02
+Pop <- c(K*0.5, K*0.5*Rec)
+RECaribou_LD<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+REScenarioS_LD<- ScenarioS_F(Area, Regime, IND, Density = 0.04)
+REruns_LD<-MCRUNS_F(Area, Regime, IND, Density = 0.04)
+pdf("RE_LD.pdf", height = 5, width  = 4)
+pLambda(REruns_LD, "RE_LD")
+dev.off()
+# EXPERIMENT 3: HF - increase fire burn rate to 0.01 (ScenarioS and MCRUNS)
+K = (RE2$AREA[1]/100)*0.03
+Pop <- c(K*0.5, K*0.5*Rec)
+RECaribou_HF<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+REScenarioS_HF<- ScenarioS_F(Area, Regime = seq(from = 0.01, to = 0.01, length.out = length(WSA_Fire)), IND, Density = 0.06)
+REruns_HF<-MCRUNS_F(Area, Regime = seq(from = 0.01, to = 0.01, length.out = length(WSA_Fire)), IND, Density = 0.06)
+pdf("RE_HF.pdf", height = 5, width  = 4)
+pLambda(REruns_HF, "RE_HF")
+dev.off()
+
+# Create a file of all LS graphs ----
+pdf("RE graphs.pdf", height = 4, width = 5, onefile = TRUE)
+Fires(RE2, "RE Annual Proportion Area Burned")
+pHoof(RE2, "RE Cummulative Intustrial Footprint")
+pLambda(REruns, "RE_RS")
+pLambda(REruns_LD, "RE_LD")
+pLambda(REruns_HF, "RE_HF")
+dev.off()
 
 ##################################################################################################################################
 # CM ----
@@ -1012,6 +1116,38 @@ dev.off()
 pYoung(CMruns, "CM")
 MeanHerd(CMScenarios, "CM") # not working
 ExtProb(CMScenarios, "CM") # not working
+
+# Performing experiments ----
+# EXPERIMENT 1: RE  - done above
+# EXPERIMENT 2: LD - change carrying capacity from 0.03 to 0.02
+SadF<-mean(caribouCM$Adult_Female_Survival)/100 #0.812 Adult female survival
+Rec<-mean(caribouCM$Calf_Recruitment)/100 #0.156 Juvenile CMcruitment - TODO should this number be 1/2?
+K = (CM2$AREA[1]/100)*0.02
+Pop <- c(K*0.5, K*0.5*Rec) # adult females, and juvenile females
+CMCaribou_LD<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+CMScenarioS_LD<- ScenarioS_F(Area, CMgime, IND, Density = 0.04)
+CMruns_LD<-MCRUNS_F(Area, Regime, IND, Density = 0.04)
+pdf("CM_LD.pdf", height = 5, width  = 4)
+pLambda(CMruns_LD, "CM_LD")
+dev.off()
+# EXPERIMENT 3: HF - increase fire burn rate to 0.01 (ScenarioS and MCRUNS)
+K = (CM2$AREA[1]/100)*0.03
+Pop <- c(K*0.5, K*0.5*Rec)
+CMCaribou_HF<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+CMScenarioS_HF<- ScenarioS_F(Area, Regime = seq(from = 0.01, to = 0.01, length.out = length(WSA_Fire)), IND, Density = 0.06)
+CMruns_HF<-MCRUNS_F(Area, Regime = seq(from = 0.01, to = 0.01, length.out = length(WSA_Fire)), IND, Density = 0.06)
+pdf("CM_HF.pdf", height = 5, width  = 4)
+pLambda(CMruns_HF, "CM_HF")
+dev.off()
+
+# Create a file of all LS graphs ----
+pdf("CM graphs.pdf", height = 4, width = 5, onefile = TRUE)
+Fires(CM2, "CM Annual Proportion Area Burned")
+pHoof(CM2, "CM Cummulative Intustrial Footprint")
+pLambda(CMruns, "CM_RS")
+pLambda(CMruns_LD, "CM_LD")
+pLambda(CMruns_HF, "CM_HF")
+dev.off()
 
 #####################################################################################################################################
 # FIGURES ----
