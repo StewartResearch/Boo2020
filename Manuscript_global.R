@@ -704,18 +704,31 @@ pdf("WSA_HF.pdf", height = 5, width  = 4)
 pLambda(WSAruns_HF, "WSA_HF")
 dev.off()
 
-# calculate extinctions: ----
+# calculate extinctions (Table 2): ----
 # RS
 # YCRIT date - date that lambda falls below 1.0
 2057 - length(WSAScenarios$Lambda[WSAScenarios$Lambda < 1.0]) #The final simulation year, minus the years where lambda < 1.0
 # year of extinction - where there are less than 10 females
 2057 - length(WSAScenarios$Nt[WSAScenarios$Nt == "EXTINCT"]) #2042
+# population size at 2017
+WSAScenarios$Nt[length(WSAScenarios$Nt)-40]
+# lambda estimate at 2017
+WSAScenarios$Lambda[length(WSAScenarios$Lambda)-40]
 # LD
 2057 - length(WSAScenarioS_LD$Lambda[WSAScenarioS_LD$Lambda < 1.0]) #2014
 2057 - length(WSAScenarioS_LD$Nt[WSAScenarioS_LD$Nt == "EXTINCT"]) # 2057
+WSAScenarioS_LD$Nt[length(WSAScenarioS_LD$Nt)-40] # for the year 2017
+WSAScenarioS_LD$Lambda[length(WSAScenarioS_LD$Lambda)-40] # for the year 2017
 #HF
 2057 - length(WSAScenarioS_HF$Lambda[WSAScenarioS_HF$Lambda < 1.0]) # 1844 - so this is pretty awful
 2057 - length(WSAScenarioS_HF$Nt[WSAScenarioS_HF$Nt == "EXTINCT"]) # 1839
+WSAScenarioS_HF$Nt[length(WSAScenarioS_HF$Nt)-40]
+WSAScenarioS_HF$Lambda[length(WSAScenarioS_HF$Lambda)-40]
+
+# Table 3 ---
+# is lambda correlated to either burn or industrial development? years 1940 through 2007
+cor.test(WSA2$BURN_INC[(1940-1917+1):length(WSA2$SUM_CUM)-1], WSAScenarios$Lambda[102:170]) 
+cor.test(WSA2$CUM_WELL[(1940-1917+1):length(WSA2$SUM_CUM)-1], WSAScenarios$Lambda[102:170])
 
 # Create a file of all WSA graphs ----
 pdf("WSA graphs.pdf", height = 4, width = 5, onefile = TRUE)
@@ -725,6 +738,7 @@ pLambda(WSAruns, "WSA_RS")
 pLambda(WSAruns_LD, "WSA_LD")
 pLambda(WSAruns_HF, "WSA_HF")
 dev.off()
+
 
 
 #####################################################################################################################################
@@ -815,12 +829,23 @@ dev.off()
 2057 - length(LSScenarios$Lambda[LSScenarios$Lambda < 1.0])
 # year of extinction - where there are less than 10 females
 2057 - length(LSScenarios$Nt[LSScenarios$Nt == "EXTINCT"]) #2012?
+LSScenarios$Nt[length(LSScenarios$Nt)-40]
+LSScenarios$Lambda[length(LSScenarios$Lambda)-40]
 # LD
 2057 - length(LSScenarioS_LD$Lambda[LSScenarioS_LD$Lambda < 1.0]) 
 2057 - length(LSScenarioS_LD$Nt[LSScenarioS_LD$Nt == "EXTINCT"]) 
+LSScenarioS_LD$Nt[length(LSScenarioS_LD$Nt)-40]
+LSScenarioS_LD$Lambda[length(LSScenarioS_LD$Lambda)-40]
 #HF
 2057 - length(LSScenarioS_HF$Lambda[LSScenarioS_HF$Lambda < 1.0]) 
 2057 - length(LSScenarioS_HF$Nt[LSScenarioS_HF$Nt == "EXTINCT"])
+LSScenarioS_HF$Nt[length(LSScenarioS_HF$Nt)-40]
+LSScenarioS_HF$Lambda[length(LSScenarioS_HF$Lambda)-40]
+
+# Table 3 ---
+# is lambda correlated to either burn or industrial development? years 1940 through 2007
+cor.test(LS2$BURN_INC[(1940-1917+1):length(LS2$SUM_CUM)-1], LSScenarios$Lambda[102:170]) 
+cor.test(LS2$CUM_WELL[(1940-1917+1):length(LS2$SUM_CUM)-1], LSScenarios$Lambda[102:170])
 
 # Create a file of all LS graphs ----
 pdf("LS graphs.pdf", height = 4, width = 5, onefile = TRUE)
@@ -922,18 +947,30 @@ pdf("CLAWR_HF.pdf", height = 5, width  = 4)
 pLambda(CLAWRruns_HF, "CLAWR_HF")
 dev.off()
 
+# Table 2 ---
 # calculate extinctions: ----
 # RS
 # YCRIT date - date that lambda falls below 1.0
 2057 - length(CLAWRScenarios$Lambda[CLAWRScenarios$Lambda < 1.0])
 # year of extinction - where there are less than 10 females
 2057 - length(CLAWRScenarios$Nt[CLAWRScenarios$Nt == "EXTINCT"]) 
+CLAWRScenarios$Nt[length(CLAWRScenarios$Nt)-40]
+CLAWRScenarios$Lambda[length(CLAWRScenarios$Lambda)-40]
 # LD
 2057 - length(CLAWRScenarioS_LD$Lambda[CLAWRScenarioS_LD$Lambda < 1.0]) 
 2057 - length(CLAWRScenarioS_LD$Nt[CLAWRScenarioS_LD$Nt == "EXTINCT"]) 
+CLAWRScenarioS_HF$Nt[length(CLAWRScenarioS_HF$Nt)-40]
+CLAWRScenarioS_HF$Lambda[length(CLAWRScenarioS_HF$Lambda)-40]
 #HF
 2057 - length(CLAWRScenarioS_HF$Lambda[CLAWRScenarioS_HF$Lambda < 1.0]) 
 2057 - length(CLAWRScenarioS_HF$Nt[CLAWRScenarioS_HF$Nt == "EXTINCT"])
+CLAWRScenarioS_LD$Nt[length(CLAWRScenarioS_LD$Nt)-40]
+CLAWRScenarioS_LD$Lambda[length(CLAWRScenarioS_LD$Lambda)-40]
+
+# Table 3 ---
+# is lambda correlated to either burn or industrial development? years 1940 through 2007
+cor.test(CLAWR2$BURN_INC[(1940-1917+1):length(CLAWR2$SUM_CUM)-1], CLAWRScenarios$Lambda[102:170]) 
+cor.test(CLAWR2$CUM_WELL[(1940-1917+1):length(CLAWR2$SUM_CUM)-1], CLAWRScenarios$Lambda[102:170])
 
 # Create a file of all LS graphs ----
 pdf("CL graphs.pdf", height = 4, width = 5, onefile = TRUE)
@@ -1008,7 +1045,7 @@ IND = RE2$HOOF[(1940-1917 +1):length(RE2$HOOF)-1] # enter the industrial disturb
 REruns<-MCRUNS_F(Area, Regime, IND)
 
 #plot
-pdf("RE_RS", height = 5, width = 4)
+pdf("RE_RS.pdf", height = 5, width = 4)
 pLambda(REruns, "RE")
 dev.off()
 
@@ -1035,18 +1072,30 @@ pdf("RE_HF.pdf", height = 5, width  = 4)
 pLambda(REruns_HF, "RE_HF")
 dev.off()
 
+# Table 2 ----
 # calculate extinctions: ----
 # RS
 # YCRIT date - date that lambda falls below 1.0
 2057 - length(REScenarios$Lambda[REScenarios$Lambda < 1.0])
 # year of extinction - where there are less than 10 females
 2057 - length(REScenarios$Nt[REScenarios$Nt == "EXTINCT"]) #2012?
+REScenarios$Nt[length(REScenarios$Nt)-40]
+REScenarios$Lambda[length(REScenarios$Lambda)-40]
 # LD
 2057 - length(REScenarioS_LD$Lambda[REScenarioS_LD$Lambda < 1.0]) 
 2057 - length(REScenarioS_LD$Nt[REScenarioS_LD$Nt == "EXTINCT"]) 
+REScenarioS_HF$Nt[length(REScenarioS_HF$Nt)-40]
+REScenarioS_HF$Lambda[length(REScenarioS_HF$Lambda)-40]
 #HF
 2057 - length(REScenarioS_HF$Lambda[REScenarioS_HF$Lambda < 1.0]) 
 2057 - length(REScenarioS_HF$Nt[REScenarioS_HF$Nt == "EXTINCT"])
+REScenarioS_LD$Nt[length(REScenarioS_LD$Nt)-40]
+REScenarioS_LD$Lambda[length(REScenarioS_LD$Lambda)-40]
+
+# Table 3 ---
+# is lambda correlated to either burn or industrial development? years 1940 through 2007
+cor.test(RE2$BURN_INC[(1940-1917+1):length(RE2$SUM_CUM)-1], REScenarios$Lambda[102:170]) 
+cor.test(RE2$CUM_WELL[(1940-1917+1):length(RE2$SUM_CUM)-1], REScenarios$Lambda[102:170])
 
 # Create a file of all LS graphs ----
 pdf("RE graphs.pdf", height = 4, width = 5, onefile = TRUE)
@@ -1147,18 +1196,30 @@ pdf("CM_HF.pdf", height = 5, width  = 4)
 pLambda(CMruns_HF, "CM_HF")
 dev.off()
 
+# Table 2 ----
 # calculate extinctions: ----
 # RS
 # YCRIT date - date that lambda falls below 1.0
 2057 - length(CMScenarios$Lambda[CMScenarios$Lambda < 1.0])
 # year of extinction - where there are less than 10 females
 2057 - length(CMScenarios$Nt[CMScenarios$Nt == "EXTINCT"]) #2012?
+CMScenarios$Nt[length(CMScenarios$Nt)-40]
+CMScenarios$Lambda[length(CMScenarios$Lambda)-40]
 # LD
 2057 - length(CMScenarioS_LD$Lambda[CMScenarioS_LD$Lambda < 1.0]) 
 2057 - length(CMScenarioS_LD$Nt[CMScenarioS_LD$Nt == "EXTINCT"]) 
+CMScenarioS_LD$Nt[length(CMScenarioS_LD$Nt)-40]
+CMScenarioS_LD$Lambda[length(CMScenarioS_LD$Lambda)-40]
 #HF
 2057 - length(CMScenarioS_HF$Lambda[CMScenarioS_HF$Lambda < 1.0]) 
 2057 - length(CMScenarioS_HF$Nt[CMScenarioS_HF$Nt == "EXTINCT"])
+CMScenarioS_HF$Nt[length(CMScenarioS_HF$Nt)-40]
+CMScenarioS_HF$Lambda[length(CMScenarioS_HF$Lambda)-40]
+
+# Table 3 ---
+# is lambda correlated to either burn or industrial development? years 1940 through 2007
+cor.test(CM2$BURN_INC[(1940-1917+1):length(CM2$SUM_CUM)-1], CMScenarios$Lambda[102:170]) 
+cor.test(CM2$CUM_WELL[(1940-1917+1):length(CM2$SUM_CUM)-1], CMScenarios$Lambda[102:170])
 
 # Create a file of all LS graphs ----
 pdf("CM graphs.pdf", height = 4, width = 5, onefile = TRUE)
