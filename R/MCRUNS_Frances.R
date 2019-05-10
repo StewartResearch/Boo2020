@@ -7,7 +7,7 @@ MCRUNS_F<-function (Area, Regime, IND, CF = 1, Density, #mmp = 5,
   pYoung <- NULL
   foot <- NULL
   for (i in 1:Reps) {
-    foo <- ScenarioS(Area, Regime, IND, CF, Density #mmp
+    foo <- ScenarioS_F(Area, Regime, IND, CF, Density #mmp
                      )
     NF <- rbind(NF, foo$NF)
     Lambda <- rbind(Lambda, foo$Lambda)

@@ -16,7 +16,7 @@ ScenarioS_F<-function (Area, Regime, IND, CF = 1, Density)
   fp1 <- rep(0, length(pYoung1)) # no industry in Stage 1
   Stage1 <- Caribou(K = K, p50s = pYoung1, hoof = fp1, Pop = P0)
   print(paste("EndPop1 = ", Stage1$EndPop, sep = ""))
-  tmp2 <- FireModelS(Regime = Regime, N = 400, T = 200, AgeStruct = AS1, 
+  tmp2 <- FireModelS(Regime = Regime, N = length(Regime), T = 200, AgeStruct = AS1, 
                      SimFire = FALSE)
   pYoung2 <- tmp2$Young
   AS2 <- tmp2$EndForest
@@ -24,7 +24,7 @@ ScenarioS_F<-function (Area, Regime, IND, CF = 1, Density)
   Stage2 <- Caribou(K = K, p50s = pYoung2, hoof = fp2, Pop = Stage1$EndPop)
   print(paste("EndPop2 = ", Stage2$EndPop, sep = ""))
   CurRegime <- rev(Regime)[1:length(Regime)] 
-  tmp3 <- FireModelS(CurRegime, N = 50, T = 200, AgeStruct = AS2, 
+  tmp3 <- FireModelS(CurRegime, N = length(CurRegime), T = 200, AgeStruct = AS2, 
                      SimFire = TRUE)
   pYoung3 <- tmp3$Young 
   fp3 <- rep(tail(IND, 1), length(pYoung3)) # industry stays the same as the last quantified value from the disturbance history
