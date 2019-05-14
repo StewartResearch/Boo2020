@@ -17,7 +17,7 @@ ScenarioS_F<-function (Area, Regime, IND, CF = 1, Density)
   Stage1 <- Caribou(K = K, p50s = pYoung1, hoof = fp1, Pop = P0)
   print(paste("EndPop1 = ", Stage1$EndPop, sep = ""))
   tmp2 <- FireModelS(Regime = Regime, N = length(Regime), T = 200, AgeStruct = AS1, 
-                     SimFire = TRUE)
+                     SimFire = FALSE)
   pYoung2 <- tmp2$Young
   AS2 <- tmp2$EndForest
   fp2 <- IND # industry from quantified disturbance history in Stage 2
