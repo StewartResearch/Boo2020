@@ -633,15 +633,18 @@ WSA_Beta<- BetaMomentEst(WSA_Fire)
 WSA2$HOOF[WSA2$YEAR == 1980] # 0.117
 WSA2$HOOF[WSA2$YEAR == 2007] # 0.851
 
+# Source all files in the R folder
+aa <- lapply(dir("R", full.names = TRUE), function(x) {print(x); source(x)})
+
 # summary plots
+
 Fires(WSA2, "WSA Annual Proportion Area Burned")
 pHoof(WSA2, "WSA Cummulative Intustrial Footprint")
 
 # STEP 3: specify the population structure, based on the above information
 # Set vital rates to average number from recorded from Alberta Caribou committee data: CaribouLambda.csv (2002-2008)
-setwd("Z:/GitHub/Boo2019/data")
-caribou<-read.csv("CaribouLambda.csv", header = T)
-setwd("Z:/GitHub/Boo2019/outputs")
+caribou<-read.csv("data/CaribouLambda.csv", header = T)
+setwd("outputs")
 caribouWSA<-subset(caribou, caribou$herd == "West_Side_Athabasca_River")
 SadF_WSA<-mean(caribouWSA$Adult_Female_Survival)/100 #0.8564. Adult female survival
 Rec_WSA<-mean(caribouWSA$Calf_Recruitment)/100 #0.2024. Juvenile recruitment - TODO should this number be 1/2?
@@ -661,7 +664,7 @@ burn = (WSA2$SUM_CUM[(1940-1917+1):length(WSA2$SUM_CUM)-1]) # this should be cum
 # Annual proportion of area burned, all year from 19402 onwards, but not the last year
 hoof = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1]# all years from 1940s onwards, but not the last year
 
-WSACaribou<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+WSACaribou<-Caribou_F(K, burn, hoof, Pop, adult = SadF_WSA, fecun = Rec_WSA) 
 
 # SECOND FUNCTION: this function brings in the period of time before our data collection (older than 69 years ago), 
 # and a projected period of time to 2050 (500 years total)
@@ -679,32 +682,56 @@ IND = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1] # enter the industrial distu
 
 WSAruns<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
 
+pdf("WSA_RS.pdf", height = 5, width  = 4)
+pLambda(WSAruns, "WSA_RS")
+dev.off()
+
 length(WSAruns$Lambda)/300 # 300 runs
 # 220 years - correct
 
 # Performing experiments ----
-# EXPERIMENT 1: RE  - done above
-# EXPERIMENT 2: LD - change carrying capacity from 0.03 to 0.02
+# EXPERIMENT 1: RS  - done above
+# EXPERIMENT 2: LD (low density) - change carrying capacity from 0.03 to 0.02
 K = (WSA2$AREA[1]/100)*0.04# carrying capacity is 0.02 feamles/km^2
 Pop <- c(K*0.5, K*0.5*Rec_WSA) # adult females, and juvenile females
 WSACaribou_LC<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
-WSAScenarioS_LD<- ScenarioS_F(Area, Regime, IND, Density = 0.04)
+WSAScenarioS_LD<- ScenarioS_F(Area, Regime, IND, Density = 0.04)# Simfire  = TRUE, FALSE, TRUE (empirical data from 1940-2007)
 WSAruns_LD<-MCRUNS_F(Area, Regime, IND, Density = 0.04)
 pdf("WSA_LD.pdf", height = 5, width  = 4)
 pLambda(WSAruns_LD, "WSA_LD")
 dev.off()
-# EXPERIMENT 3: HF - increase fire burn rate to 0.01 (ScenarioS and MCRUNS)
+# EXPERIMENT 3: LB - increase fire burn rate to 0.01 (ScenarioS and MCRUNS)
 K = (WSA2$AREA[1]/100)*0.06# carrying capacity is 0.03 feamles/km^2
 Pop <- c(K*0.5, K*0.5*Rec_WSA) # adult females, and juvenile females
-WSACaribou_HF<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+WSACaribou_LB<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
 Regime = rnorm(length(WSA_Fire), mean = 0.01, sd = WSA_Fire_sd)
-WSAScenarioS_HF<- ScenarioS_F(Area, Regime, IND, Density = 0.06)
-WSAruns_HF<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
-pdf("WSA_HF.pdf", height = 5, width  = 4)
-pLambda(WSAruns_HF, "WSA_HF")
+WSAScenarioS_LB<- ScenarioS_F(Area, Regime, IND, Density = 0.06)# Simfire  = TRUE, TRUE, TRUE (no empirical data)
+WSAruns_LB<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
+pdf("WSA_LB.pdf", height = 5, width  = 4)
+pLambda(WSAruns_LB, "WSA_LB")
+dev.off()
+# EXPERIMENT 4: HB - increase fire burn rate to 0.016
+K = (WSA2$AREA[1]/100)*0.06# carrying capacity is 0.03 feamles/km^2
+Pop <- c(K*0.5, K*0.5*Rec_WSA) # adult females, and juvenile females
+WSACaribou_HB<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+Regime = rnorm(length(WSA_Fire), mean = 0.016, sd = WSA_Fire_sd)
+WSAScenarioS_HB<- ScenarioS_F(Area, Regime, IND, Density = 0.06)# Simfire  = TRUE, TRUE, TRUE (no empirical data)
+WSAruns_HB<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
+pdf("WSA_HB.pdf", height = 5, width  = 4)
+pLambda(WSAruns_HB, "WSA_HB")
+dev.off()
+#Experiment 5: NI - no industry. Set IND to zero in regular scenario
+K = (WSA2$AREA[1]/100)*0.06# carrying capacity is 0.06 feamles/km^2
+Pop <- c(K*0.5, K*0.5*Rec_WSA) # adult females, and juvenile females
+WSACaribou_NI<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+WSAScenarioS_NI<- ScenarioS_F(Area, Regime, IND = rep(0, 69), Density = 0.06)# Simfire  = TRUE, FALSE, TRUE (empirical data from 1940-2007)
+WSAruns_NI<-MCRUNS_F(Area, Regime, IND = rep(0, 69), Density = 0.06)
+pdf("WSA_LD.pdf", height = 5, width  = 4)
+pLambda(WSAruns_NI, "WSA_NI")
 dev.off()
 
-# calculate extinctions (Table 2): ----
+
+# calculate extinctions from different experiments (Table 2): ----
 # RS
 # YCRIT date - date that lambda falls below 1.0
 2057 - length(WSAScenarios$Lambda[WSAScenarios$Lambda < 1.0]) #The final simulation year, minus the years where lambda < 1.0
@@ -715,8 +742,8 @@ WSAScenarios$Nt[length(WSAScenarios$Nt)-40]
 # lambda estimate at 2017
 WSAScenarios$Lambda[length(WSAScenarios$Lambda)-40]
 # LD
-2057 - length(WSAScenarioS_LD$Lambda[WSAScenarioS_LD$Lambda < 1.0]) #2014
-2057 - length(WSAScenarioS_LD$Nt[WSAScenarioS_LD$Nt == "EXTINCT"]) # 2057
+2057 - length(WSAScenarioS_LD$Lambda[WSAScenarioS_LD$Lambda < 1.0]) 
+2057 - length(WSAScenarioS_LD$Nt[WSAScenarioS_LD$Nt == "EXTINCT"]) 
 WSAScenarioS_LD$Nt[length(WSAScenarioS_LD$Nt)-40] # for the year 2017
 WSAScenarioS_LD$Lambda[length(WSAScenarioS_LD$Lambda)-40] # for the year 2017
 #HF
@@ -787,7 +814,7 @@ Regime = LS2$PROP_BURN[(1940-1917+1):length(LS2$PROP_BURN)-1] # enter the annual
 # TODO: I might need to change this to SUM_CUM?
 IND = LS2$HOOF[(1940-1917 +1):length(LS2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
 
-LSScenarios<- ScenarioS_F(Area, Regime, IND)
+LSScenarios<- ScenarioS_F(Area, Regime, IND, Density = 0.06)
 
 # THIRD FUNCTION: this function adds environmental stochasticity to the simulation by repeating it 300 times
 Area = LS2$AREA[1]/100 # enter herd area size as one number in km^2
@@ -891,7 +918,7 @@ Rec_CLAWR<-mean(caribouCLAWR$Calf_Recruitment)/100 #0.169 Juvenile recruitment -
 # population carrying capacity is 0.06 caribou/km^2
 K = (f.clawr$AREA_HERD[1]/100)*0.06# carrying capacity is 0.03 feamles/km^2
 Pop <- c(K*0.5, K*0.5*Rec_CLAWR) # adult females, and juvenile females
-# ASSUMPITON: 50: sex ratio of calves at survey. Some publications use 60% male.
+# ASSUMPITON: 50:50 sex ratio of calves at survey. Some publications use 60% male.
 
 
 # STEP 4: Performing analyses ----
@@ -906,12 +933,12 @@ CLAWRCaribou<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec)
 
 # SECOND FUNCTION: this function brings in the period of time before our data collection (older than 69 years ago), 
 # and a projected period of time to 2050 (500 years total)
-Area = CLAWR2$AREA[1]/100# enter herd area size as one number in km^2
+Area = f.clawr$AREA_HERD[1]/100# enter herd area size as one number in km^2
 Regime = CLAWR2$PROP_BURN[(1940-1917+1):length(CLAWR2$PROP_BURN)-1] # enter the annual proportion of area burned. 
 # TODO: I might need to change this to SUM_CUM?
 IND = CLAWR2$HOOF[(1940-1917 +1):length(CLAWR2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
 
-CLAWRScenarios<- ScenarioS_F(Area, Regime, IND)
+CLAWRScenarios<- ScenarioS_F(Area, Regime, IND, Density = 0.06)
 
 # THIRD FUNCTION: this function adds environmental stochasticity to the simulation by repeating it 300 times
 Area = CLAWR2$AREA[1]/100 # enter herd area size as one number in km^2
@@ -933,8 +960,8 @@ Pop <- c(K*0.5, K*0.5*Rec_CLAWR) # adult females, and juvenile females
 CLAWRCaribou_LD<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
 CLAWRScenarioS_LD<- ScenarioS_F(Area, Regime, IND, Density = 0.04)
 CLAWRruns_LD<-MCRUNS_F(Area, Regime, IND, Density = 0.04)
-pdf("CLAWR_LD.pdf", height = 5, width  = 4)
-pLambda(CLAWRruns_LD, "CLAWR_LD")
+pdf("CL_LD.pdf", height = 5, width  = 4)
+pLambda(CLAWRruns_LD, "CL_LD")
 dev.off()
 # EXPERIMENT 3: HF - increase fire burn rate to 0.01 (ScenarioS and MCRUNS)
 K = (f.clawr$AREA_HERD[1]/100)*0.06
@@ -1034,7 +1061,7 @@ Regime = RE2$PROP_BURN[(1940-1917+1):length(RE2$PROP_BURN)-1] # enter the annual
 # TODO: I might need to change this to SUM_CUM?
 IND = RE2$HOOF[(1940-1917 +1):length(RE2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
 
-REScenarios<- ScenarioS_F(Area, Regime, IND)
+REScenarios<- ScenarioS_F(Area, Regime, IND, Density = 0.06)
 
 
 # THIRD FUNCTION: this function adds environmental stochasticity to the simulation by repeating it 300 times
@@ -1042,7 +1069,7 @@ Area = RE2$AREA[1]/100 # enter herd area size as one number in km^2
 Regime = RE2$PROP_BURN[(1940-1917+1):length(RE2$PROP_BURN)-1] # enter the mean of the fire regime (from Table 1, or above area specific code (i.e. RE_Fire))
 IND = RE2$HOOF[(1940-1917 +1):length(RE2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
 
-REruns<-MCRUNS_F(Area, Regime, IND)
+REruns<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
 
 #plot
 pdf("RE_RS.pdf", height = 5, width = 4)
@@ -1084,7 +1111,7 @@ REScenarios$Lambda[length(REScenarios$Lambda)-40]
 # LD
 2057 - length(REScenarioS_LD$Lambda[REScenarioS_LD$Lambda < 1.0]) 
 2057 - length(REScenarioS_LD$Nt[REScenarioS_LD$Nt == "EXTINCT"]) 
-REScenarioS_HF$Nt[length(REScenarioS_HF$Nt)-40]
+REScenarioS_HF$Nt[length(REScenarioS_HF$Nt)-41]
 REScenarioS_HF$Lambda[length(REScenarioS_HF$Lambda)-40]
 #HF
 2057 - length(REScenarioS_HF$Lambda[REScenarioS_HF$Lambda < 1.0]) 
@@ -1123,7 +1150,7 @@ CM2$HOOF[CM2$YEAR == 1980]
 CM2$HOOF[CM2$YEAR == 2007]
 
 # summary plots
-Fires(CM2, "CM Annual Proportion ACMa Burned")
+Fires(CM2, "CM Annual Proportion Area Burned")
 pHoof(CM2, "CM Cummulative Intustrial Footprint")
 
 # STEP 3: specify the population structuCM, based on the above information
@@ -1159,7 +1186,7 @@ Regime = CM2$PROP_BURN[(1940-1917+1):length(CM2$PROP_BURN)-1] # enter the annual
 # TODO: I might need to change this to SUM_CUM?
 IND = CM2$HOOF[(1940-1917 +1):length(CM2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
 
-CMScenarios<- ScenarioS_F(Area, Regime, IND)
+CMScenarios<- ScenarioS_F(Area, Regime, IND, Density = 0.06)
 
 
 # THIRD FUNCTION: this function adds environmental stochasticity to the simulation by CMpeating it 300 times
@@ -1218,8 +1245,9 @@ CMScenarioS_HF$Lambda[length(CMScenarioS_HF$Lambda)-40]
 
 # Table 3 ---
 # is lambda correlated to either burn or industrial development? years 1940 through 2007
-cor.test(CM2$BURN_INC[(1940-1917+1):length(CM2$SUM_CUM)-1], CMScenarios$Lambda[102:170]) 
-cor.test(CM2$CUM_WELL[(1940-1917+1):length(CM2$SUM_CUM)-1], CMScenarios$Lambda[102:170])
+cor.test(CM2$BURN_INC[(1940-1917+1):length(CM2$SUM_CUM)-1], CMScenarios$Lambda[102:170]) # fire regime
+cor.test(CM2$CUM_WELL[(1940-1917+1):length(CM2$SUM_CUM)-1], CMScenarios$Lambda[102:170]) # disturbance regime
+cor.test(CM2$SUM_CUM[(1940-1917+1):length(CM2$SUM_CUM)-1], CMScenarios$Lambda[102:170]) # cummulative burns in 50 yr increments
 
 # Create a file of all LS graphs ----
 pdf("CM graphs.pdf", height = 4, width = 5, onefile = TRUE)
