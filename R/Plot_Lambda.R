@@ -1,5 +1,6 @@
 
 pLambda<-function(Herd, Title = ""){      #plot mean Lambda  Example:  pLambda(clawrmc, "CLAWR")
+  # TODO: Add the fire history to the x axis of each plot
   Lamb.CI <- apply(Herd$Lambda, 2, function(x){
     #browser()
     c(quantile(x,0.05),  mean(x), quantile(x, 0.95))

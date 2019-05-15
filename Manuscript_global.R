@@ -643,8 +643,8 @@ pHoof(WSA2, "WSA Cummulative Intustrial Footprint")
 
 # STEP 3: specify the population structure, based on the above information
 # Set vital rates to average number from recorded from Alberta Caribou committee data: CaribouLambda.csv (2002-2008)
-caribou<-read.csv("data/CaribouLambda.csv", header = T)
-setwd("outputs")
+caribou<-read.csv("Z:/GitHub/Boo2019/data/CaribouLambda.csv", header = T)
+setwd("Z:/GitHub/Boo2019/outputs")
 caribouWSA<-subset(caribou, caribou$herd == "West_Side_Athabasca_River")
 SadF_WSA<-mean(caribouWSA$Adult_Female_Survival)/100 #0.8564. Adult female survival
 Rec_WSA<-mean(caribouWSA$Calf_Recruitment)/100 #0.2024. Juvenile recruitment - TODO should this number be 1/2?
