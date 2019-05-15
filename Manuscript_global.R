@@ -694,7 +694,8 @@ length(WSAruns$Lambda)/300 # 300 runs
 # EXPERIMENT 2: LD (low density) - change carrying capacity from 0.03 to 0.02
 K = (WSA2$AREA[1]/100)*0.04# carrying capacity is 0.02 feamles/km^2
 Pop <- c(K*0.5, K*0.5*Rec_WSA) # adult females, and juvenile females
-WSACaribou_LC<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+WSACaribou_LD<-Caribou_F(K, burn, hoof, Pop, adult = SadF_WSA, fecun = Rec_WSA) 
+IND = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
 WSAScenarioS_LD<- ScenarioS_F(Area, Regime, IND, Density = 0.04)# Simfire  = TRUE, FALSE, TRUE (empirical data from 1940-2007)
 WSAruns_LD<-MCRUNS_F(Area, Regime, IND, Density = 0.04)
 pdf("WSA_LD.pdf", height = 5, width  = 4)
@@ -703,8 +704,9 @@ dev.off()
 # EXPERIMENT 3: LB - increase fire burn rate to 0.01 (ScenarioS and MCRUNS)
 K = (WSA2$AREA[1]/100)*0.06# carrying capacity is 0.03 feamles/km^2
 Pop <- c(K*0.5, K*0.5*Rec_WSA) # adult females, and juvenile females
-WSACaribou_LB<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+WSACaribou_LB<-Caribou_F(K, burn, hoof, Pop, adult = SadF_WSA, fecun = Rec_WSA) 
 Regime = rnorm(length(WSA_Fire), mean = 0.01, sd = WSA_Fire_sd)
+IND = WSA2$HOOF[(1940-1917 +1):length(WSA2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
 WSAScenarioS_LB<- ScenarioS_F(Area, Regime, IND, Density = 0.06)# Simfire  = TRUE, TRUE, TRUE (no empirical data)
 WSAruns_LB<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
 pdf("WSA_LB.pdf", height = 5, width  = 4)
@@ -713,7 +715,7 @@ dev.off()
 # EXPERIMENT 4: HB - increase fire burn rate to 0.016
 K = (WSA2$AREA[1]/100)*0.06# carrying capacity is 0.03 feamles/km^2
 Pop <- c(K*0.5, K*0.5*Rec_WSA) # adult females, and juvenile females
-WSACaribou_HB<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+WSACaribou_HB<-Caribou_F(K, burn, hoof, Pop, adult = SadF_WSA, fecun = Rec_WSA) 
 Regime = rnorm(length(WSA_Fire), mean = 0.016, sd = WSA_Fire_sd)
 WSAScenarioS_HB<- ScenarioS_F(Area, Regime, IND, Density = 0.06)# Simfire  = TRUE, TRUE, TRUE (no empirical data)
 WSAruns_HB<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
@@ -723,13 +725,12 @@ dev.off()
 #Experiment 5: NI - no industry. Set IND to zero in regular scenario
 K = (WSA2$AREA[1]/100)*0.06# carrying capacity is 0.06 feamles/km^2
 Pop <- c(K*0.5, K*0.5*Rec_WSA) # adult females, and juvenile females
-WSACaribou_NI<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+WSACaribou_NI<-Caribou_F(K, burn, hoof, Pop, adult = SadF_WSA, fecun = Rec_WSA) 
 WSAScenarioS_NI<- ScenarioS_F(Area, Regime, IND = rep(0, 69), Density = 0.06)# Simfire  = TRUE, FALSE, TRUE (empirical data from 1940-2007)
 WSAruns_NI<-MCRUNS_F(Area, Regime, IND = rep(0, 69), Density = 0.06)
-pdf("WSA_LD.pdf", height = 5, width  = 4)
+pdf("WSA_NI.pdf", height = 5, width  = 4)
 pLambda(WSAruns_NI, "WSA_NI")
 dev.off()
-
 
 # calculate extinctions from different experiments (Table 2): ----
 # RS
@@ -746,24 +747,32 @@ WSAScenarios$Lambda[length(WSAScenarios$Lambda)-40]
 2057 - length(WSAScenarioS_LD$Nt[WSAScenarioS_LD$Nt == "EXTINCT"]) 
 WSAScenarioS_LD$Nt[length(WSAScenarioS_LD$Nt)-40] # for the year 2017
 WSAScenarioS_LD$Lambda[length(WSAScenarioS_LD$Lambda)-40] # for the year 2017
-#HF
-2057 - length(WSAScenarioS_HF$Lambda[WSAScenarioS_HF$Lambda < 1.0]) # 1844 - so this is pretty awful
-2057 - length(WSAScenarioS_HF$Nt[WSAScenarioS_HF$Nt == "EXTINCT"]) # 1839
-WSAScenarioS_HF$Nt[length(WSAScenarioS_HF$Nt)-40]
-WSAScenarioS_HF$Lambda[length(WSAScenarioS_HF$Lambda)-40]
+#LB
+2057 - length(WSAScenarioS_LB$Lambda[WSAScenarioS_LB$Lambda < 1.0]) # 1975
+2057 - length(WSAScenarioS_LB$Nt[WSAScenarioS_LB$Nt == "EXTINCT"]) # 2001
+WSAScenarioS_LB$Nt[length(WSAScenarioS_LB$Nt)-40]
+WSAScenarioS_LB$Lambda[length(WSAScenarioS_LB$Lambda)-40]
+#HB
+2057 - length(WSAScenarioS_HB$Lambda[WSAScenarioS_HB$Lambda < 1.0]) # 1961
+2057 - length(WSAScenarioS_HB$Nt[WSAScenarioS_HB$Nt == "EXTINCT"]) # 1996
+WSAScenarioS_HB$Nt[length(WSAScenarioS_HB$Nt)-40]
+WSAScenarioS_HB$Lambda[length(WSAScenarioS_HB$Lambda)-40]
+# NI
+2057 - length(WSAScenarioS_NI$Lambda[WSAScenarioS_NI$Lambda < 1.0]) # 1961
+2057 - length(WSAScenarioS_NI$Nt[WSAScenarioS_NI$Nt == "EXTINCT"]) # 1996
+WSAScenarioS_NI$Nt[length(WSAScenarioS_NI$Nt)-40]
+WSAScenarioS_NI$Lambda[length(WSAScenarioS_NI$Lambda)-40]
 
-# Table 3 ---
-# is lambda correlated to either burn or industrial development? years 1940 through 2007
-cor.test(WSA2$BURN_INC[(1940-1917+1):length(WSA2$SUM_CUM)-1], WSAScenarios$Lambda[102:170]) 
-cor.test(WSA2$CUM_WELL[(1940-1917+1):length(WSA2$SUM_CUM)-1], WSAScenarios$Lambda[102:170])
 
 # Create a file of all WSA graphs ----
-pdf("WSA graphs.pdf", height = 4, width = 5, onefile = TRUE)
+pdf("WSA_graphs.pdf", height = 4, width = 5, onefile = TRUE)
 Fires(WSA2, "WSA Annual Proportion Area Burned")
 pHoof(WSA2, "WSA Cummulative Intustrial Footprint")
 pLambda(WSAruns, "WSA_RS")
 pLambda(WSAruns_LD, "WSA_LD")
-pLambda(WSAruns_HF, "WSA_HF")
+pLambda(WSAruns_LB, "WSA_LF")
+pLambda(WSAruns_HB, "WSA_HF")
+pLambda(WSAruns_NI, "WSA_NI")
 dev.off()
 
 
