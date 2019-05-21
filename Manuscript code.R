@@ -24,13 +24,14 @@ Herd2 <- Burn_F(Herd$all.data, lagYears = 50, colToUse = "PROP_BURN", startYear 
 # ASSUMPTION - fires do not superimpose across the time lag window
 
 # STEP 2: Recreating Table 1 - Summary data ----
-#Area = Herd2$AREA[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
+Area = Herd2$AREA[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
 
 # for CLAWR ##
 # STEP 2: Recreating Table 1 - Summary data ----
-Area = f.clawr$AREA_HERD[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
+#Area = f.clawr$AREA_HERD[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
+
 ##
-Herd_InitialPop = (Area)*0.06 # assumes carry capacity is 0.06 caribou/km^2
+Herd_InitialPop = Area*0.06 # assumes carry capacity is 0.06 caribou/km^2
 Herd_Fire = Herd2$PROP_BURN[(1940-1917+1):length(Herd2$PROP_BURN)-1] # fire events from 1940s onwards
 Herd_Fire_mean = mean(Herd2$PROP_BURN[(1940-1917+1):length(Herd2$PROP_BURN)-1]) # mean annual porportion burned from 1940 onwards
 Herd_Fire_sd = sd(Herd2$PROP_BURN[(1940-1917+1):length(Herd2$PROP_BURN)-1]) # sd annual porportion burned from 1940 onwards
@@ -80,6 +81,7 @@ Herdruns<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
 #pdf("WSA_RS.pdf", height = 5, width  = 4)
 pLambda(Herdruns, "RS")
 #dev.off()
+#saveRDS(Herdruns, "CL_RS.rds") - example of how to save these objects.
 
 # Performing experiments ----
 # EXPERIMENT 1: RS  - done above
@@ -148,19 +150,6 @@ Herdruns_NIHB<-MCRUNS_F(Area, Regime, IND = rep(0, 69), Density = 0.06)
 pLambda(Herdruns_NIHB, "NIHB")
 #dev.off()
 
-#Experiment 7: 35% IND - keep industry at the 35% level that ECCC recomments. Use the observed fire data
-K = Area*0.06# carrying capacity is 0.06 feamles/km^2
-Pop <- c(K*0.5, K*0.5*Rec_Herd)
-burn = (Herd2$SUM_CUM[(1940-1917+1):length(Herd2$SUM_CUM)-1]) # Observed burn history
-HerdCaribou_35IND<-Caribou_F(K, burn, hoof, Pop, adult = SadF_Herd, fecun = Rec_Herd) 
-Regime = (Herd2$SUM_CUM[(1940-1917+1):length(Herd2$SUM_CUM)-1]) # Observed burn history
-IND = rep(0.35, 69) # keep industrial disturbance to 35% for all 69 years of data collection
-HerdScenarioS_35IND<- ScenarioS_F(Area, Regime, IND, Density = 0.06)# Simfire  = TRUE, FALSE, TRUE (empirical data from 1940-2007)
-Herdruns_35IND<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
-#pdf("WSA_NI.pdf", height = 5, width  = 4)
-pLambda(Herdruns_35IND, "35%IND")
-#dev.off()
-
 # Create a file of all Herd graphs (In preparation for Figure 2) ----
 pdf("WSA_graphs.pdf", height = 4, width = 5, onefile = TRUE) # Change name of herds for which ever herd you have just run above
 Fires(Herd2, "Annual Proportion Area Burned")
@@ -171,7 +160,6 @@ pLambda(Herdruns_MB, "MB")
 pLambda(Herdruns_HB, "HB")
 pLambda(Herdruns_NI, "NI") # no industry, and observed burns
 pLambda(Herdruns_NIHB, "NIHB") # no industry and high burns
-pLambda(Herdruns_35IND, "35%IND") # 35% ind throughout historical disturbance regimes
 dev.off()
 
 # calculate extinctions from different experiments (Table 2): ----
