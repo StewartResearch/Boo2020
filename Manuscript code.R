@@ -15,7 +15,9 @@ aa <- lapply(dir("R", full.names = TRUE), function(x) {print(x); source(x)})
 
 ###############################################################################
 # Run analysis on WSA, LS, CM, or RE herds ---- 
-Herd = RE # CHANGE FOR EACH HERD
+Herd = WSA
+# TODO: CHANGE FOR EACH HERD
+
 # To run through the below code, substitute the herd name into the above line. Herd names include WSA, LS, CM, and RE
 # Code for CLAWR is an exception - see code for this herd before, as it is mashed from a few different data files.
 
@@ -37,7 +39,7 @@ Herd_Fire_mean = mean(Herd2$PROP_BURN[(1940-1917+1):length(Herd2$PROP_BURN)-1]) 
 Herd_Fire_sd = sd(Herd2$PROP_BURN[(1940-1917+1):length(Herd2$PROP_BURN)-1]) # sd annual porportion burned from 1940 onwards
 Herd_Beta<- BetaMomentEst(Herd_Fire)
 Herd2$HOOF[Herd2$YEAR == 1980] # 1980 IND footprint
-Herd2$HOOF[Herd2$YEAR == 2007] # 2007 IND footprint
+Herd2$HOOF[Herd2$YEAR == 2006] # 2006 IND footprint
 
 # STEP 3: specify the population structure, based on the above information
 # Set vital rates to average number from recorded from Alberta Caribou committee data: CaribouLambda.csv (2002-2008)
@@ -152,7 +154,8 @@ pLambda(Herdruns_NIHB, "0Ind++Fire")
 
 ###########################################################################################################################
 # Create a file of all Herd graphs (In preparation for Figure 2) ----
-pdf("RE_graphs2.pdf", height = 4, width = 5, onefile = TRUE) # Change name of herds for which ever herd you have just run above
+pdf("WSA_graphs2.pdf", height = 4, width = 5, onefile = TRUE) 
+# TODO: Change name of herds for which ever herd you have just run above
 Fires(Herd2, "Annual Proportion Area Burned")
 pHoof(Herd2, "Cummulative Intustrial Footprint")
 pLambda(Herdruns, "Reg")
@@ -165,12 +168,12 @@ dev.off()
 
 #Save all simulations as rds objects so that they can be used in future
 # change the herd name in the label of each
-saveRDS(Herdruns, file = "RE_Reg.rds")
-saveRDS(Herdruns_LD, file = "RE_-Dens.rds")
-saveRDS(Herdruns_MB, file = "RE_+Fire.rds")
-saveRDS(Herdruns_HB, file = "RE_++Fire.rds")
-saveRDS(Herdruns_NI, file = "RE_0Ind.rds")
-saveRDS(Herdruns_NIHB, file = "RE_0Ind++Fire.rds")
+saveRDS(Herdruns, file = "WSA_Reg.rds")
+saveRDS(Herdruns_LD, file = "WSA_-Dens.rds")
+saveRDS(Herdruns_MB, file = "WSA_+Fire.rds")
+saveRDS(Herdruns_HB, file = "WSA_++Fire.rds")
+saveRDS(Herdruns_NI, file = "WSA_0Ind.rds")
+saveRDS(Herdruns_NIHB, file = "WSA_0Ind++Fire.rds")
 
 #############################################################################################################################
 # calculate extinctions from different experiments (Table 2): ----
@@ -209,11 +212,18 @@ HerdScenarioS_NI$Lambda[length(HerdScenarioS_NI$Lambda)-40]
 HerdScenarioS_NIHB$Nt[length(HerdScenarioS_NIHB$Nt)-40]
 HerdScenarioS_NIHB$Lambda[length(HerdScenarioS_NIHB$Lambda)-40]
 
+
 # trying to get confidence intervals for the year of quasi-extinction
 # year of extinction - where there are less than 10 females
 2057 - length(HerdScenarios$Nt[HerdScenarios$Nt == "EXTINCT"]) 
 
-Herdruns$Lambda
+plot(HerdScenarios$Nt) # but this is only one value for each year
 
-plot(seq(1857:2057), HerdScenarios$Nt)
+dim(Herdruns$Lambda)
+summary(Herdruns$Lambda)
+# our Herdruns do not provide Nt for each year of simulation - they only provide lambda.
+
+
+
+ExtProb(HerdScenarios)
 
