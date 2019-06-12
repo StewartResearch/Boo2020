@@ -731,6 +731,16 @@ WSAruns_NI<-MCRUNS_F(Area, Regime, IND = rep(0, 69), Density = 0.06)
 pdf("WSA_NI.pdf", height = 5, width  = 4)
 pLambda(WSAruns_NI, "WSA_NI")
 dev.off()
+# Experiment 6: NIHB - no industry and high burns
+K = (WSA2$AREA[1]/100)*0.06# carrying capacity is 0.06 feamles/km^2
+Pop <- c(K*0.5, K*0.5*Rec_WSA) # adult females, and juvenile females
+WSACaribou_NIHB<-Caribou_F(K, burn, hoof, Pop, adult = SadF_WSA, fecun = Rec_WSA) 
+Regime = rnorm(length(WSA_Fire), mean = 0.016, sd = WSA_Fire_sd)
+WSAScenarioS_NIHB<- ScenarioS_F(Area, Regime, IND = rep(0, 69), Density = 0.06)# Simfire  = TRUE, FALSE, TRUE (empirical data from 1940-2007)
+WSAruns_NIHB<-MCRUNS_F(Area, Regime, IND = rep(0, 69), Density = 0.06)
+pdf("WSA_NIHB.pdf", height = 5, width  = 4)
+pLambda(WSAruns_NI, "WSA_NIHB")
+dev.off()
 
 # calculate extinctions from different experiments (Table 2): ----
 # RS
@@ -773,6 +783,7 @@ pLambda(WSAruns_LD, "WSA_LD")
 pLambda(WSAruns_LB, "WSA_LF")
 pLambda(WSAruns_HB, "WSA_HF")
 pLambda(WSAruns_NI, "WSA_NI")
+pLambda(WSAruns_NI, "WSA_NIHB")
 dev.off()
 
 
@@ -814,7 +825,7 @@ burn = (LS2$SUM_CUM[(1940-1917+1):length(LS2$SUM_CUM)-1]) # this should be cummu
 # Annual proportion of area burned, all year from 19402 onwards, but not the last year
 hoof = LS2$HOOF[(1940-1917 +1):length(LS2$HOOF)-1]# all years from 1940s onwards, but not the last year
 
-LSCaribou<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+LSCaribou<-Caribou_F(K, burn, hoof, Pop, adult = SadF_LS, fecun = Rec_LS) 
 
 # SECOND FUNCTION: this function brings in the period of time before our data collection (older than 69 years ago), 
 # and a projected period of time to 2050 (500 years total)
@@ -830,7 +841,7 @@ Area = LS2$AREA[1]/100 # enter herd area size as one number in km^2
 Regime = LS2$PROP_BURN[(1940-1917+1):length(LS2$PROP_BURN)-1] # enter the mean of the fire regime (from Table 1, or above area specific code (i.e. LS_Fire))
 IND = LS2$HOOF[(1940-1917 +1):length(LS2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
 
-LSruns<-MCRUNS_F(Area, Regime, IND)
+LSruns<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
 
 #plot
 pdf("LS_RS.pdf", height = 5, width = 4)
@@ -842,7 +853,7 @@ dev.off()
 # EXPERIMENT 2: LD - change carrying capacity from 0.03 to 0.02
 K = (LS2$AREA[1]/100)*0.04# carrying capacity is 0.02 feamles/km^2
 Pop <- c(K*0.5, K*0.5*Rec_LS) # adult females, and juvenile females
-LSCaribou_LD<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+LSCaribou_LD<-Caribou_F(K, burn, hoof, Pop, adult = SadF_LS, fecun = Rec_LS) 
 LSScenarioS_LD<- ScenarioS_F(Area, Regime, IND, Density = 0.04)
 LSruns_LD<-MCRUNS_F(Area, Regime, IND, Density = 0.04)
 pdf("LS_LD.pdf", height = 5, width  = 4)
@@ -851,7 +862,7 @@ dev.off()
 # EXPERIMENT 3: HF - increase fire burn rate to 0.01 (ScenarioS and MCRUNS)
 K = (LS2$AREA[1]/100)*0.06# carrying capacity is 0.03 feamles/km^2
 Pop <- c(K*0.5, K*0.5*Rec_LS) # adult females, and juvenile females
-LSCaribou_HF<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+LSCaribou_HF<-Caribou_F(K, burn, hoof, Pop, adult = SadF_LS, fecun = Rec_LS) 
 Regime = rnorm(length(LS_Fire), mean = 0.01, sd = LS_Fire_sd)
 LSScenarioS_HF<- ScenarioS_F(Area, Regime, IND, Density = 0.06)
 LSruns_HF<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
