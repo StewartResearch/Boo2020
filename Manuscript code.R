@@ -15,7 +15,7 @@ aa <- lapply(dir("R", full.names = TRUE), function(x) {print(x); source(x)})
 
 ###############################################################################
 # Run analysis on WSA, LS, CM, or RE herds ---- 
-Herd = CLAWR # CHANGE FOR EACH HERD
+Herd = RE # CHANGE FOR EACH HERD
 # To run through the below code, substitute the herd name into the above line. Herd names include WSA, LS, CM, and RE
 # Code for CLAWR is an exception - see code for this herd before, as it is mashed from a few different data files.
 
@@ -78,15 +78,15 @@ IND
 Herdruns<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
 
 # plot this scenario (regular scenario). Change names to reflect the herd that you have run.
-#pdf("WSA_RS.pdf", height = 5, width  = 4)
-pLambda(Herdruns, "RS")
+#pdf("WSA_Reg.pdf", height = 5, width  = 4)
+pLambda(Herdruns, "Reg")
 #dev.off()
 #saveRDS(Herdruns, "CL_RS.rds") - example of how to save these objects.
 
 # Performing experiments ----
-# EXPERIMENT 1: RS  - done above
+# EXPERIMENT 1: RS (Reg)  - done above
 
-# EXPERIMENT 2: LD (low density) - change carrying capacity from 0.03 to 0.02
+# EXPERIMENT 2: LD (-Dens) - change carrying capacity from 0.03 to 0.02
 K = Area*0.04# carrying capacity is 0.02 feamles/km^2
 Pop <- c(K*0.5, K*0.5*Rec_Herd) # recalculate population structure with new K
 burn = (Herd2$SUM_CUM[(1940-1917+1):length(Herd2$SUM_CUM)-1]) # Observed burn history
@@ -95,10 +95,10 @@ IND = IND # inustrial footprint stays the same as the RS scenario
 HerdScenarioS_LD<- ScenarioS_F(Area, Regime, IND, Density = 0.04)# Set Simfire  = TRUE, FALSE, TRUE (empirical data from 1940-2007)
 Herdruns_LD<-MCRUNS_F(Area, Regime, IND, Density = 0.04)
 #pdf("WSA_LD.pdf", height = 5, width  = 4)
-pLambda(Herdruns_LD, "LD") # change name to reflect the herd you've just run
+pLambda(Herdruns_LD, "-Dens") # change name to reflect the herd you've just run
 #dev.off()
 
-# EXPERIMENT 3: MB - increase fire burn rate to 0.01 (ScenarioS and MCRUNS) throughout simulations
+# EXPERIMENT 3: MB (+Fire) - increase fire burn rate to 0.01 (ScenarioS and MCRUNS) throughout simulations
 K = Area*0.06# carrying capacity is 0.03 feamles/km^2
 Pop <- c(K*0.5, K*0.5*Rec_Herd) # adult females, and juvenile females
 burn = rnorm(length(Herd_Fire), mean = 0.01, sd = Herd_Fire_sd)
@@ -108,10 +108,10 @@ IND = Herd2$HOOF[(1940-1917 +1):length(Herd2$HOOF)-1]  # inustrial footprint sta
 HerdScenarioS_MB<- ScenarioS_F(Area, Regime, IND, Density = 0.06)# Simfire  = TRUE, TRUE, TRUE (no empirical data)
 Herdruns_MB<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
 #pdf("WSA_LB.pdf", height = 5, width  = 4)
-pLambda(Herdruns_MB, "MB") # change name to reflect the herd you've just run
+pLambda(Herdruns_MB, "+Fire") # change name to reflect the herd you've just run
 #dev.off()
 
-# EXPERIMENT 4: HB - increase fire burn rate to 0.016
+# EXPERIMENT 4: HB (++Fire) - increase fire burn rate to 0.016
 K = Area*0.06# carrying capacity is 0.03 feamles/km^2
 Pop <- c(K*0.5, K*0.5*Rec_Herd) 
 burn = rnorm(length(Herd_Fire), mean = 0.016, sd = Herd_Fire_sd)
@@ -121,10 +121,10 @@ IND = Herd2$HOOF[(1940-1917 +1):length(Herd2$HOOF)-1]  # inustrial footprint sta
 HerdScenarioS_HB<- ScenarioS_F(Area, Regime, IND, Density = 0.06)# Simfire  = TRUE, TRUE, TRUE (no empirical data)
 Herdruns_HB<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
 #pdf("WSA_HB.pdf", height = 5, width  = 4)
-pLambda(Herdruns_HB, "HB") # change name to reflect the herd you've just run
+pLambda(Herdruns_HB, "++Fire") # change name to reflect the herd you've just run
 #dev.off()
 
-#Experiment 5: NI - no industry. Set IND to zero in regular scenario
+#Experiment 5: NI (0Ind) - no industry. Set IND to zero in regular scenario
 K = Area*0.06# carrying capacity is 0.06 feamles/km^2
 Pop <- c(K*0.5, K*0.5*Rec_Herd)
 burn = (Herd2$SUM_CUM[(1940-1917+1):length(Herd2$SUM_CUM)-1]) # Observed burn history
@@ -134,10 +134,10 @@ IND = rep(0, 69) # set Industry to 0 for the 69 years that we have data
 HerdScenarioS_NI<- ScenarioS_F(Area, Regime, IND, Density = 0.06)# Simfire  = TRUE, FALSE, TRUE (empirical data from 1940-2007)
 Herdruns_NI<-MCRUNS_F(Area, Regime, IND = rep(0, 69), Density = 0.06)
 #pdf("WSA_NI.pdf", height = 5, width  = 4)
-pLambda(Herdruns_NI, "NI")
+pLambda(Herdruns_NI, "0Ind")
 #dev.off()
 
-#Experiment 6: NIHB - no industry, but a high burn rate (60 year fire return interval)
+#Experiment 6: NIHB (0Ind++Fire) - no industry, but a high burn rate (60 year fire return interval)
 K = Area*0.06# carrying capacity is 0.06 feamles/km^2
 Pop <- c(K*0.5, K*0.5*Rec_Herd)
 burn = rnorm(length(Herd_Fire), mean = 0.016, sd = Herd_Fire_sd)
@@ -147,19 +147,19 @@ IND = rep(0, 69) # # set Industry to 0 for the 69 years that we have data
 HerdScenarioS_NIHB<- ScenarioS_F(Area, Regime, IND, Density = 0.06)# Simfire  = TRUE, FALSE, TRUE (empirical data from 1940-2007)
 Herdruns_NIHB<-MCRUNS_F(Area, Regime, IND = rep(0, 69), Density = 0.06)
 #pdf("WSA_NI.pdf", height = 5, width  = 4)
-pLambda(Herdruns_NIHB, "NIHB")
+pLambda(Herdruns_NIHB, "0Ind++Fire")
 #dev.off()
 
 # Create a file of all Herd graphs (In preparation for Figure 2) ----
-pdf("WSA_graphs.pdf", height = 4, width = 5, onefile = TRUE) # Change name of herds for which ever herd you have just run above
+pdf("RE_graphs2.pdf", height = 4, width = 5, onefile = TRUE) # Change name of herds for which ever herd you have just run above
 Fires(Herd2, "Annual Proportion Area Burned")
 pHoof(Herd2, "Cummulative Intustrial Footprint")
-pLambda(Herdruns, "RS")
-pLambda(Herdruns_LD, "LD")
-pLambda(Herdruns_MB, "MB")
-pLambda(Herdruns_HB, "HB")
-pLambda(Herdruns_NI, "NI") # no industry, and observed burns
-pLambda(Herdruns_NIHB, "NIHB") # no industry and high burns
+pLambda(Herdruns, "Reg")
+pLambda(Herdruns_LD, "-Dens")
+pLambda(Herdruns_MB, "+Fire")
+pLambda(Herdruns_HB, "++Fire")
+pLambda(Herdruns_NI, "0Ind") # no industry, and observed burns
+pLambda(Herdruns_NIHB, "0Ind++Fire") # no industry and high burns
 dev.off()
 
 # calculate extinctions from different experiments (Table 2): ----
