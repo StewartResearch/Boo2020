@@ -13,7 +13,7 @@ ExtProb<-function(Herd, Title = ""){       #plot extinction probability ExtProb(
     lines(x2+Y1,x[x2],col="red",lwd=3)
   }
   
-  
+
   PP(apply(Herd$Nt,2,function(x, N = 10)
     sum(x<10)/length(x)))  #Extinction Probability
   title(main = Title, xlab = "Year", ylab = "Prob. of Extinction",

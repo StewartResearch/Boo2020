@@ -1,1 +1,2 @@
 "file" "checksum" "filesize" "algorithm"
+"plotObjects.zip" "6e9e0683bc163242" "22994562" "xxhash64"

@@ -949,7 +949,7 @@ burn = (CLAWR2$SUM_CUM[(1940-1917+1):length(CLAWR2$SUM_CUM)-1]) # this should be
 # Annual proportion of area burned, all year from 19402 onwards, but not the last year
 hoof = CLAWR2$HOOF[(1940-1917 +1):length(CLAWR2$HOOF)-1]# all years from 1940s onwards, but not the last year
 
-CLAWRCaribou<-Caribou_F(K, burn, hoof, Pop, adult = SadF, fecun = Rec) 
+CLAWRCaribou<-Caribou_F(K, burn, hoof, Pop, adult = SadF_CLAWR, fecun = Rec_CLAWR) 
 
 # SECOND FUNCTION: this function brings in the period of time before our data collection (older than 69 years ago), 
 # and a projected period of time to 2050 (500 years total)
@@ -965,7 +965,7 @@ Area = CLAWR2$AREA[1]/100 # enter herd area size as one number in km^2
 Regime = CLAWR2$PROP_BURN[(1940-1917+1):length(CLAWR2$PROP_BURN)-1] # enter the mean of the fire regime (from Table 1, or above area specific code (i.e. CLAWR_Fire))
 IND = CLAWR2$HOOF[(1940-1917 +1):length(CLAWR2$HOOF)-1] # enter the industrial disturbance on a yearly basis from 1940 onwards, but not the last year
 
-CLAWRruns<-MCRUNS_F(Area, Regime, IND)
+CLAWRruns<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
 
 #plot
 pdf("CL_RS.pdf", height = 5, width = 4)

@@ -21,6 +21,10 @@ Herd = WSA
 # To run through the below code, substitute the herd name into the above line. Herd names include WSA, LS, CM, and RE
 # Code for CLAWR is an exception - see code for this herd before, as it is mashed from a few different data files.
 
+# for CLAWR ##
+#Herd = CLAWR
+#Area = f.clawr$AREA_HERD[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
+
 # STEP 1: re-calculate the cummulative burn for each year, as this was not originally provided. Run the function from
 Herd2 <- Burn_F(Herd$all.data, lagYears = 50, colToUse = "PROP_BURN", startYear = 1940)
 # ASSUMPTION - fires do not superimpose across the time lag window
@@ -28,9 +32,6 @@ Herd2 <- Burn_F(Herd$all.data, lagYears = 50, colToUse = "PROP_BURN", startYear 
 # STEP 2: Recreating Table 1 - Summary data ----
 Area = Herd2$AREA[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
 
-# for CLAWR ##
-# STEP 2: Recreating Table 1 - Summary data ----
-#Area = f.clawr$AREA_HERD[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
 
 ##
 Herd_InitialPop = Area*0.06 # assumes carry capacity is 0.06 caribou/km^2
@@ -46,7 +47,8 @@ Herd2$HOOF[Herd2$YEAR == 2006] # 2006 IND footprint
 setwd("Z:/GitHub/Boo2019")
 caribou<-read.csv("data/CaribouLambda.csv", header = T)
 setwd("outputs")
-caribouHerd<-na.omit(subset(caribou, caribou$herd == "Cold_Lake_Air_Weapons_Range")) # CHANGE FOR EACH HERD
+caribouHerd<-na.omit(subset(caribou, caribou$herd == "West_Side_Athabasca_River")) 
+# TODO: CHANGE FOR EACH HERD
 SadF_Herd<-mean(caribouHerd$Adult_Female_Survival)/100 # Adult female survival
 Rec_Herd<-mean(caribouHerd$Calf_Recruitment)/100 # Juvenile recruitment - TODO should this number be 1/2?
 # ASSUMPTION  - these rates are held consistent through time.
@@ -154,7 +156,7 @@ pLambda(Herdruns_NIHB, "0Ind++Fire")
 
 ###########################################################################################################################
 # Create a file of all Herd graphs (In preparation for Figure 2) ----
-pdf("WSA_graphs2.pdf", height = 4, width = 5, onefile = TRUE) 
+pdf("CL_graphs2.pdf", height = 4, width = 5, onefile = TRUE) 
 # TODO: Change name of herds for which ever herd you have just run above
 Fires(Herd2, "Annual Proportion Area Burned")
 pHoof(Herd2, "Cummulative Intustrial Footprint")
@@ -167,63 +169,91 @@ pLambda(Herdruns_NIHB, "0Ind++Fire") # no industry and high burns
 dev.off()
 
 #Save all simulations as rds objects so that they can be used in future
-# change the herd name in the label of each
-saveRDS(Herdruns, file = "WSA_Reg.rds")
-saveRDS(Herdruns_LD, file = "WSA_-Dens.rds")
-saveRDS(Herdruns_MB, file = "WSA_+Fire.rds")
-saveRDS(Herdruns_HB, file = "WSA_++Fire.rds")
-saveRDS(Herdruns_NI, file = "WSA_0Ind.rds")
-saveRDS(Herdruns_NIHB, file = "WSA_0Ind++Fire.rds")
-
-#############################################################################################################################
-# calculate extinctions from different experiments (Table 2): ----
-# Reg
-# YCRIT date - date that lambda falls below 1.0
-2057 - length(HerdScenarios$Lambda[HerdScenarios$Lambda < 1.0]) #The final simulation year, minus the years where lambda < 1.0
-# year of extinction - where there are less than 10 females
-2057 - length(HerdScenarios$Nt[HerdScenarios$Nt == "EXTINCT"]) 
-# population size at 2017
-HerdScenarios$Nt[length(HerdScenarios$Nt)-40]
-# lambda estimate at 2017
-HerdScenarios$Lambda[length(HerdScenarios$Lambda)-40]
-# -Dens
-2057 - length(HerdScenarioS_LD$Lambda[HerdScenarioS_LD$Lambda < 1.0]) 
-2057 - length(HerdScenarioS_LD$Nt[HerdScenarioS_LD$Nt == "EXTINCT"]) 
-HerdScenarioS_LD$Nt[length(HerdScenarioS_LD$Nt)-40] # for the year 2017
-HerdScenarioS_LD$Lambda[length(HerdScenarioS_LD$Lambda)-40] # for the year 2017
-# +Fire
-2057 - length(HerdScenarioS_MB$Lambda[HerdScenarioS_MB$Lambda < 1.0]) # 1975
-2057 - length(HerdScenarioS_MB$Nt[HerdScenarioS_MB$Nt == "EXTINCT"]) # 2001
-HerdScenarioS_MB$Nt[length(HerdScenarioS_MB$Nt)-40]
-HerdScenarioS_MB$Lambda[length(HerdScenarioS_MB$Lambda)-40]
-# ++Fire
-2057 - length(HerdScenarioS_HB$Lambda[HerdScenarioS_HB$Lambda < 1.0]) 
-2057 - length(HerdScenarioS_HB$Nt[HerdScenarioS_HB$Nt == "EXTINCT"]) 
-HerdScenarioS_HB$Nt[length(HerdScenarioS_HB$Nt)-40]
-HerdScenarioS_HB$Lambda[length(HerdScenarioS_HB$Lambda)-40]
-# 0Ind
-2057 - length(HerdScenarioS_NI$Lambda[HerdScenarioS_NI$Lambda < 1.0]) 
-2057 - length(HerdScenarioS_NI$Nt[HerdScenarioS_NI$Nt == "EXTINCT"]) 
-HerdScenarioS_NI$Nt[length(HerdScenarioS_NI$Nt)-40]
-HerdScenarioS_NI$Lambda[length(HerdScenarioS_NI$Lambda)-40]
-# 0Ind++Fire
-2057 - length(HerdScenarioS_NIHB$Lambda[HerdScenarioS_NIHB$Lambda < 1.0]) 
-2057 - length(HerdScenarioS_NIHB$Nt[HerdScenarioS_NIHB$Nt == "EXTINCT"]) 
-HerdScenarioS_NIHB$Nt[length(HerdScenarioS_NIHB$Nt)-40]
-HerdScenarioS_NIHB$Lambda[length(HerdScenarioS_NIHB$Lambda)-40]
+# TODO: change the herd name in the label of each
+saveRDS(Herdruns, file = "CL_Reg.rds")
+saveRDS(Herdruns_LD, file = "CL_-Dens.rds")
+saveRDS(Herdruns_MB, file = "CL_+Fire.rds")
+saveRDS(Herdruns_HB, file = "CL_++Fire.rds")
+saveRDS(Herdruns_NI, file = "CL_0Ind.rds")
+saveRDS(Herdruns_NIHB, file = "CL_0Ind++Fire.rds")
 
 
-# trying to get confidence intervals for the year of quasi-extinction
-# year of extinction - where there are less than 10 females
-2057 - length(HerdScenarios$Nt[HerdScenarios$Nt == "EXTINCT"]) 
+############################################################################################################################
+# Getting averaged values and their confidence intervals For Table 1
 
-plot(HerdScenarios$Nt) # but this is only one value for each year
+# 1. Get the confidence intervals around the years where lambda was less than 1
+Lam<- LambdaDates(Herdruns$Lambda)
+Lam
+YearsLam<-as.vector(Lam$Year[Lam$Lambda == "TRUE"])
+mean(YearsLam)
+CIs(YearsLam, 0.95)
 
-dim(Herdruns$Lambda)
-summary(Herdruns$Lambda)
-# our Herdruns do not provide Nt for each year of simulation - they only provide lambda.
+# 2. get the confidence intervalls around Nt for 2017
+# for 2017 (year 199)
+2057-2017 # 2017 is 40 years prior to the end of the simulation
+Year2017<-239-40 # all lambda estimates (300 of them from the simulation) for year 2017
+Nt<-Herdruns$Nt[,199]
+Nt<-as.numeric(Nt)
+mean(Nt)
+CIs(Nt, 0.95)
+
+# 3. calculate the confidence interval of lambda for across replications at the year 2017
+vector <- Herdruns$Lambda[,199]
+mean(vector)
+CIs(vector, 0.95)
+
+# 4. calculate the confifence intevals for the year of quasi-extinction
+# Make a vector of all the years where an extinction showed up within the simulations:
+ext <- ExtinctionDates(Herdruns$Nt)
+# now calculate the 95%CI for this vector, and their means
+Yearsext<-as.vector(ext$Year[ext$EXTINCT == "TRUE"])
+mean(Yearsext)
+CIs(Yearsext, 0.95)
 
 
+# TODO: repeat this for all other Simulations (i.e. Experiments 1 through 6)
 
-ExtProb(HerdScenarios)
 
+# #############################################################################################################################
+# # calculate extinctions from different experiments (Table 2): ----
+# # Reg
+# # YCRIT date - date that lambda falls below 1.0
+# 2057 - length(HerdScenarios$Lambda[HerdScenarios$Lambda < 1.0]) #The final simulation year, minus the years where lambda < 1.0
+# # year of extinction - where there are less than 10 females (OR 50 ANIMALS)
+# 2057 - length(HerdScenarios$Nt[HerdScenarios$Nt == "EXTINCT"]) 
+# # population size at 2017
+# HerdScenarios$Nt[length(HerdScenarios$Nt)-40]
+# # lambda estimate at 2017
+# HerdScenarios$Lambda[length(HerdScenarios$Lambda)-40]
+# # -Dens
+# 2057 - length(HerdScenarioS_LD$Lambda[HerdScenarioS_LD$Lambda < 1.0]) 
+# 2057 - length(HerdScenarioS_LD$Nt[HerdScenarioS_LD$Nt == "EXTINCT"]) 
+# HerdScenarioS_LD$Nt[length(HerdScenarioS_LD$Nt)-40] # for the year 2017
+# HerdScenarioS_LD$Lambda[length(HerdScenarioS_LD$Lambda)-40] # for the year 2017
+# # +Fire
+# 2057 - length(HerdScenarioS_MB$Lambda[HerdScenarioS_MB$Lambda < 1.0]) # 1975
+# 2057 - length(HerdScenarioS_MB$Nt[HerdScenarioS_MB$Nt == "EXTINCT"]) # 2001
+# HerdScenarioS_MB$Nt[length(HerdScenarioS_MB$Nt)-40]
+# HerdScenarioS_MB$Lambda[length(HerdScenarioS_MB$Lambda)-40]
+# # ++Fire
+# 2057 - length(HerdScenarioS_HB$Lambda[HerdScenarioS_HB$Lambda < 1.0]) 
+# 2057 - length(HerdScenarioS_HB$Nt[HerdScenarioS_HB$Nt == "EXTINCT"]) 
+# HerdScenarioS_HB$Nt[length(HerdScenarioS_HB$Nt)-40]
+# HerdScenarioS_HB$Lambda[length(HerdScenarioS_HB$Lambda)-40]
+# # 0Ind
+# 2057 - length(HerdScenarioS_NI$Lambda[HerdScenarioS_NI$Lambda < 1.0]) 
+# 2057 - length(HerdScenarioS_NI$Nt[HerdScenarioS_NI$Nt == "EXTINCT"]) 
+# HerdScenarioS_NI$Nt[length(HerdScenarioS_NI$Nt)-40]
+# HerdScenarioS_NI$Lambda[length(HerdScenarioS_NI$Lambda)-40]
+# # 0Ind++Fire
+# 2057 - length(HerdScenarioS_NIHB$Lambda[HerdScenarioS_NIHB$Lambda < 1.0]) 
+# 2057 - length(HerdScenarioS_NIHB$Nt[HerdScenarioS_NIHB$Nt == "EXTINCT"]) 
+# HerdScenarioS_NIHB$Nt[length(HerdScenarioS_NIHB$Nt)-40]
+# HerdScenarioS_NIHB$Lambda[length(HerdScenarioS_NIHB$Lambda)-40]
+# 
+# 
+# 
+# 
+# 
+# 
+# 
