@@ -13,8 +13,8 @@ MCRUNS_F<-function (Area, Regime, IND, CF = 1, Density, #mmp = 5,
     Lambda <- rbind(Lambda, foo$Lambda)
     pYoung <- rbind(pYoung, foo$pYoung)
     foot <- rbind(foot, foo$foot)
-    #Nt <- rbind(Nt, foo$Nt)
+    Nt <- rbind(Nt, foo$Nt)
   }
-  list(NF = NF, Lambda = Lambda, pYoung = pYoung, foot = foot
+  list(NF = NF, Lambda = Lambda, pYoung = pYoung, foot = foot, Nt = Nt
        )
 }
