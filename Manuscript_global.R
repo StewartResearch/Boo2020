@@ -1295,3 +1295,50 @@ dev.off()
 # RE_RS   RE_LD   RE_HF
 # CM_RS   CM_LD   CM_HF
 
+
+
+# #############################################################################################################################
+# # calculate extinctions from different experiments (Table 2): ----
+# # Reg
+# # YCRIT date - date that lambda falls below 1.0
+# 2057 - length(HerdScenarios$Lambda[HerdScenarios$Lambda < 1.0]) #The final simulation year, minus the years where lambda < 1.0
+# # year of extinction - where there are less than 10 females (OR 50 ANIMALS)
+# 2057 - length(HerdScenarios$Nt[HerdScenarios$Nt == "EXTINCT"]) 
+# # population size at 2017
+# HerdScenarios$Nt[length(HerdScenarios$Nt)-40]
+# # lambda estimate at 2017
+# HerdScenarios$Lambda[length(HerdScenarios$Lambda)-40]
+# # -Dens
+# 2057 - length(HerdScenarioS_LD$Lambda[HerdScenarioS_LD$Lambda < 1.0]) 
+# 2057 - length(HerdScenarioS_LD$Nt[HerdScenarioS_LD$Nt == "EXTINCT"]) 
+# HerdScenarioS_LD$Nt[length(HerdScenarioS_LD$Nt)-40] # for the year 2017
+# HerdScenarioS_LD$Lambda[length(HerdScenarioS_LD$Lambda)-40] # for the year 2017
+# # +Fire
+# 2057 - length(HerdScenarioS_MB$Lambda[HerdScenarioS_MB$Lambda < 1.0]) # 1975
+# 2057 - length(HerdScenarioS_MB$Nt[HerdScenarioS_MB$Nt == "EXTINCT"]) # 2001
+# HerdScenarioS_MB$Nt[length(HerdScenarioS_MB$Nt)-40]
+# HerdScenarioS_MB$Lambda[length(HerdScenarioS_MB$Lambda)-40]
+# # ++Fire
+# 2057 - length(HerdScenarioS_HB$Lambda[HerdScenarioS_HB$Lambda < 1.0]) 
+# 2057 - length(HerdScenarioS_HB$Nt[HerdScenarioS_HB$Nt == "EXTINCT"]) 
+# HerdScenarioS_HB$Nt[length(HerdScenarioS_HB$Nt)-40]
+# HerdScenarioS_HB$Lambda[length(HerdScenarioS_HB$Lambda)-40]
+# # 0Ind
+# 2057 - length(HerdScenarioS_NI$Lambda[HerdScenarioS_NI$Lambda < 1.0]) 
+# 2057 - length(HerdScenarioS_NI$Nt[HerdScenarioS_NI$Nt == "EXTINCT"]) 
+# HerdScenarioS_NI$Nt[length(HerdScenarioS_NI$Nt)-40]
+# HerdScenarioS_NI$Lambda[length(HerdScenarioS_NI$Lambda)-40]
+# # 0Ind++Fire
+# 2057 - length(HerdScenarioS_NIHB$Lambda[HerdScenarioS_NIHB$Lambda < 1.0]) 
+# 2057 - length(HerdScenarioS_NIHB$Nt[HerdScenarioS_NIHB$Nt == "EXTINCT"]) 
+# HerdScenarioS_NIHB$Nt[length(HerdScenarioS_NIHB$Nt)-40]
+# HerdScenarioS_NIHB$Lambda[length(HerdScenarioS_NIHB$Lambda)-40]
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+
+

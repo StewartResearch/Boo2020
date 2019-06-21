@@ -49,3 +49,4 @@ ScenarioS_F<-function (Area, Regime, IND, CF = 1, Density)
        NYF = NYFs, Nt = Nt, Juv_survival = Juv_survival, Fecundity = Fecundity, 
        BioLambda = BioLambda)
 }
+
