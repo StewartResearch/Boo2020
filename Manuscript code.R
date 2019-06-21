@@ -11,26 +11,29 @@
 setwd('Z:/GitHub/Boo2019')
 load("Workspace_for_Steve.RData") # load in the RData file I was provided
 # Source all files in the R folder
-aa <- lapply(dir("R", full.names = TRUE), function(x) {print(x); source(x)})
+library(R.utils)
+library(dplyr)
+sourceDirectory("Z:/GitHub/Boo2019/R")
+#aa <- lapply(dir("R", full.names = TRUE), function(x) {print(x); source(x)})
 
 ###############################################################################
 # Run analysis on WSA, LS, CM, or RE herds ---- 
-Herd = WSA
+#Herd = LS
 # TODO: CHANGE FOR EACH HERD
 
 # To run through the below code, substitute the herd name into the above line. Herd names include WSA, LS, CM, and RE
 # Code for CLAWR is an exception - see code for this herd before, as it is mashed from a few different data files.
 
 # for CLAWR ##
-#Herd = CLAWR
-#Area = f.clawr$AREA_HERD[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
+Herd = CLAWR
+Area = f.clawr$AREA_HERD[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
 
 # STEP 1: re-calculate the cummulative burn for each year, as this was not originally provided. Run the function from
 Herd2 <- Burn_F(Herd$all.data, lagYears = 50, colToUse = "PROP_BURN", startYear = 1940)
 # ASSUMPTION - fires do not superimpose across the time lag window
 
 # STEP 2: Recreating Table 1 - Summary data ----
-Area = Herd2$AREA[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
+#Area = Herd2$AREA[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
 
 
 ##
@@ -47,7 +50,7 @@ Herd2$HOOF[Herd2$YEAR == 2006] # 2006 IND footprint
 setwd("Z:/GitHub/Boo2019")
 caribou<-read.csv("data/CaribouLambda.csv", header = T)
 setwd("outputs")
-caribouHerd<-na.omit(subset(caribou, caribou$herd == "West_Side_Athabasca_River")) 
+caribouHerd<-na.omit(subset(caribou, caribou$herd == "Cold_Lake_Air_Weapons_Range")) 
 # TODO: CHANGE FOR EACH HERD
 SadF_Herd<-mean(caribouHerd$Adult_Female_Survival)/100 # Adult female survival
 Rec_Herd<-mean(caribouHerd$Calf_Recruitment)/100 # Juvenile recruitment - TODO should this number be 1/2?
@@ -181,8 +184,10 @@ saveRDS(Herdruns_NIHB, file = "CL_0Ind++Fire.rds")
 ############################################################################################################################
 # Getting averaged values and their confidence intervals For Table 1
 
+scenario = Herdruns_NIHB
+
 # 1. Get the confidence intervals around the years where lambda was less than 1
-Lam<- LambdaDates(Herdruns$Lambda)
+Lam<- LambdaDates(scenario$Lambda)
 Lam
 YearsLam<-as.vector(Lam$Year[Lam$Lambda == "TRUE"])
 mean(YearsLam)
@@ -192,26 +197,26 @@ CIs(YearsLam, 0.95)
 # for 2017 (year 199)
 2057-2017 # 2017 is 40 years prior to the end of the simulation
 Year2017<-239-40 # all lambda estimates (300 of them from the simulation) for year 2017
-Nt<-Herdruns$Nt[,199]
-Nt<-as.numeric(Nt)
+Nt<-as.vector(scenario$Nt[,Year2017])
+Nt<-(na.omit(as.numeric(Nt)))
 mean(Nt)
 CIs(Nt, 0.95)
 
 # 3. calculate the confidence interval of lambda for across replications at the year 2017
-vector <- Herdruns$Lambda[,199]
+vector <- scenario$Lambda[,Year2017]
 mean(vector)
 CIs(vector, 0.95)
 
 # 4. calculate the confifence intevals for the year of quasi-extinction
 # Make a vector of all the years where an extinction showed up within the simulations:
-ext <- ExtinctionDates(Herdruns$Nt)
+ext <- ExtinctionDates(scenario$Nt)
 # now calculate the 95%CI for this vector, and their means
 Yearsext<-as.vector(ext$Year[ext$EXTINCT == "TRUE"])
 mean(Yearsext)
 CIs(Yearsext, 0.95)
 
 
-# TODO: repeat this for all other Simulations (i.e. Experiments 1 through 6)
+# TODO: repeat this for all other Simulations (i.e. Experiments 1 through 6) by substitution out the scenario line for each
 
 
 # #############################################################################################################################
