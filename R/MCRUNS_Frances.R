@@ -6,6 +6,7 @@ MCRUNS_F<-function (Area, Regime, IND, CF = 1, Density, #mmp = 5,
   Lambda <- NULL
   pYoung <- NULL
   foot <- NULL
+  Nt <- NULL
   for (i in 1:Reps) {
     foo <- ScenarioS_F(Area, Regime, IND, CF, Density #mmp
                      )
