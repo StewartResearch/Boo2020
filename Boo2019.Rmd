@@ -1,6 +1,6 @@
 ---
 title: "Boo2019"
-author: ""
+author: "Frances E.C. Stewart", "Steve Cumming", "Josh Nowak", "Tati Micheletti", "Eliot J.B. McIntire"
 date: "26 June 2019"
 output: pdf_document
 ---

@@ -5,9 +5,14 @@
 # in R packages. If exact location is required, functions will be: sim$<moduleName>$FunctionName
 defineModule(sim, list(
   name = "Boo2019",
-  description = NA, #"insert module description here",
-  keywords = NA, # c("insert key words here"),
-  authors = c(person(c("First", "Middle"), "Last", email = "email@example.com", role = c("aut", "cre"))),
+  description = NA, "Testing the Sorensen boreal caribou model given spatially explicit fire and anthropogenic disturbance histories for five boreal caribou herds in Alberta, Canada",
+  keywords = NA, # c("boreal", "development", "disturbance", "extinction", "fire", "population", "carrying capacity", "Rangifer tarandus caribou"),
+  authors = c(person(c("Frances", "E.C."), "Stewart", email = "frances.stewart@canada.ca", role = c("aut", "cre")),
+              person(c("J.", "Joshua"), "Nowak", email = "josh.nowak@speedgoat.io", role = c("aut", "cre")),
+              person(c("Tatianne"), "Micheletti", email = "tati.micheletti@gmail.com", role = c("aut", "cre")),
+              person(c("Eliot", "J.B."), "McIntire", email = "eliot.mcintire@canada.ca", role = c("aut", "cre")),
+              person(c("Fiona", "K.A."), "Schmiegelow", email = "fschmieg@ualberta.ca", role = c("aut", "cre")),
+              person(c("Steve", ""), "Cumming", email = "stevec@sbf.ulaval.ca", role = c("aut", "cre"))),
   childModules = character(0),
   version = list(SpaDES.core = "0.2.5", Boo2019 = "0.0.1"),
   spatialExtent = raster::extent(rep(NA_real_, 4)),
