@@ -7,7 +7,7 @@ makeCaribouPlot <- function(dataPath = file.path(getwd(), "data", "lambdaTableAl
                             colorLine = c("grey40", "blue3", "red3"),
                             plotWidth = 1000, 
                             plotHeight = 400,
-                            uploadToGoogleDrive = FALSE){
+                            uploadToGoogleDrive = TRUE){
 
   # Reg (RS)
   # -Dens (LD)
