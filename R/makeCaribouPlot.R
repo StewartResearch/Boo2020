@@ -3,10 +3,12 @@ makeCaribouPlot <- function(dataPath = file.path(getwd(), "data", "lambdaTableAl
                             endYear = 2055,  # Last year of time series for plotting
                             periods = c(1937, 2007), # vector of starting years
                             plotName = file.path(getwd(), "caribouPlot"), # Full path and name of the plot file to be saved without extension
-                            colorCI = c("grey70", "cornflowerblue", "brown1"),
-                            colorLine = c("grey40", "blue3", "red3"),
-                            plotWidth = 1000, 
-                            plotHeight = 400,
+                            #colorCI = c("grey70", "cornflowerblue", "brown1"),
+                            #colorLine = c("grey40", "blue3", "red3"),
+                            colorCI = c("#53A567FF", "#56A8CBFF", "#DA291CFF"),
+                            colorLine = c("grey70", "cornflowerblue", "brown1"),
+                            plotWidth = 1600, 
+                            plotHeight = 800,
                             uploadToGoogleDrive = TRUE){
 
   # Reg (RS)
