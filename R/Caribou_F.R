@@ -1,5 +1,5 @@
 Caribou_F<-function (K, hoof, burn, adult, fecun, Pop)
-  # K is the population carrying capacity - area (in kn^2) * 0.06 #ASSUMPTION
+  # K is the population carrying capacity - area (in km^2) * 0.06 #ASSUMPTION
   # SUM_CUM is the cummulative annual proportion of area burned over 50 year time windows
   # hoof is the prortion area of industrial footprint
   # Pop is a vector of length 2, indicating how many adults, juveniles there are in the population

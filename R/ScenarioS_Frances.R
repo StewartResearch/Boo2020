@@ -2,7 +2,7 @@ ScenarioS_F<-function (Area, Regime, IND, CF = 1, Density)
 {
   
   InitPop <- function(K) {
-    aoy = round(K * 0.6769521) #
+    aoy = round(K * 0.6769521) # ASSUMPTION: two-thirds of the initial carrying capacity is adults
     yoy = K - aoy
     matrix(c(aoy, yoy), nrow = 2, ncol = 1, byrow = TRUE)
   }
