@@ -13,27 +13,27 @@ load("Workspace_for_Steve.RData") # load in the RData file I was provided
 # Source all files in the R folder
 library(R.utils)
 library(dplyr)
-sourceDirectory("Z:/GitHub/Boo2019/R")
-#aa <- lapply(dir("R", full.names = TRUE), function(x) {print(x); source(x)})
+#sourceDirectory("Z:/GitHub/Boo2019/R")
+aa <- lapply(dir("R", full.names = TRUE), function(x) {print(x); source(x)})
 
 ###############################################################################
 # Run analysis on WSA, LS, CM, or RE herds ---- 
-#Herd = LS
+Herd = LS
 # TODO: CHANGE FOR EACH HERD
 
 # To run through the below code, substitute the herd name into the above line. Herd names include WSA, LS, CM, and RE
 # Code for CLAWR is an exception - see code for this herd before, as it is mashed from a few different data files.
 
 # for CLAWR ##
-Herd = CLAWR
-Area = f.clawr$AREA_HERD[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
+#Herd = CLAWR
+#Area = f.clawr$AREA_HERD[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
 
 # STEP 1: re-calculate the cummulative burn for each year, as this was not originally provided. Run the function from
 Herd2 <- Burn_F(Herd$all.data, lagYears = 50, colToUse = "PROP_BURN", startYear = 1940)
 # ASSUMPTION - fires do not superimpose across the time lag window
 
 # STEP 2: Recreating Table 1 - Summary data ----
-#Area = Herd2$AREA[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
+Area = Herd2$AREA[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
 
 
 ##
@@ -50,7 +50,7 @@ Herd2$HOOF[Herd2$YEAR == 2006] # 2006 IND footprint
 setwd("Z:/GitHub/Boo2019")
 caribou<-read.csv("data/CaribouLambda.csv", header = T)
 setwd("outputs")
-caribouHerd<-na.omit(subset(caribou, caribou$herd == "Cold_Lake_Air_Weapons_Range")) 
+caribouHerd<-na.omit(subset(caribou, caribou$herd == "Little_Smoky")) 
 # TODO: CHANGE FOR EACH HERD
 SadF_Herd<-mean(caribouHerd$Adult_Female_Survival)/100 # Adult female survival
 Rec_Herd<-mean(caribouHerd$Calf_Recruitment)/100 # Juvenile recruitment - TODO should this number be 1/2?
