@@ -18,15 +18,15 @@ aa <- lapply(dir("R", full.names = TRUE), function(x) {print(x); source(x)})
 
 ###############################################################################
 # Run analysis on WSA, LS, CM, or RE herds ---- 
-Herd = LS
+Herd = CM
 # TODO: CHANGE FOR EACH HERD
 
 # To run through the below code, substitute the herd name into the above line. Herd names include WSA, LS, CM, and RE
 # Code for CLAWR is an exception - see code for this herd before, as it is mashed from a few different data files.
 
 # for CLAWR ##
-#Herd = CLAWR
-#Area = f.clawr$AREA_HERD[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
+Herd = CLAWR
+Area = f.clawr$AREA_HERD[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
 
 # STEP 1: re-calculate the cummulative burn for each year, as this was not originally provided. Run the function from
 Herd2 <- Burn_F(Herd$all.data, lagYears = 50, colToUse = "PROP_BURN", startYear = 1940)
@@ -42,6 +42,8 @@ Herd_Fire = Herd2$PROP_BURN[(1940-1917+1):length(Herd2$PROP_BURN)-1] # fire even
 Herd_Fire_mean = mean(Herd2$PROP_BURN[(1940-1917+1):length(Herd2$PROP_BURN)-1]) # mean annual porportion burned from 1940 onwards
 Herd_Fire_sd = sd(Herd2$PROP_BURN[(1940-1917+1):length(Herd2$PROP_BURN)-1]) # sd annual porportion burned from 1940 onwards
 Herd_Beta<- BetaMomentEst(Herd_Fire)
+Herd2$YEAR[Herd2$HOOF > 0] # Provide the years when footprint is greater than 0
+Herd2$HOOF[Herd2$YEAR == 1940] # 1940 IND footprint
 Herd2$HOOF[Herd2$YEAR == 1980] # 1980 IND footprint
 Herd2$HOOF[Herd2$YEAR == 2006] # 2006 IND footprint
 
@@ -186,35 +188,58 @@ saveRDS(Herdruns_NIHB, file = "CL_0Ind++Fire.rds")
 
 scenario = Herdruns_NIHB
 
-# 1. Get the confidence intervals around the years where lambda was less than 1
+# COLUMN 3, TABLE 3
+# 1. Get the year where the averaged lambda first was less than 1
 Lam<- LambdaDates(scenario$Lambda)
 Lam
+# these are the years where lambda is less than 1
 YearsLam<-as.vector(Lam$Year[Lam$Lambda == "TRUE"])
-mean(YearsLam)
-CIs(YearsLam, 0.95)
+# this is the first year where lambda was less than 1
+minYear<-min(YearsLam)
+message('this is the first year where lambda < 1.0: ', minYear)
 
-# 2. get the confidence intervalls around Nt for 2017
-# for 2017 (year 199)
-2057-2017 # 2017 is 40 years prior to the end of the simulation
-Year2017<-239-40 # all lambda estimates (300 of them from the simulation) for year 2017
+# this is the averaged year of lambdas less than 1 - not currently included in Table 3.
+# mean(YearsLam)
+# CIs(YearsLam, 0.95)
+
+#COLUMN 4, TABLE 3
+# 2. get the year, and confidence intervalls around Nt across all replications for 2017 - column 4, Table 3
+# for 2017 (year 180)
+2076-2017 # 2017 is 59 years prior to the end of the simulation
+Year2017<-239-59 # all lambda estimates (300 of them from the simulation) for year 2017
 Nt<-as.vector(scenario$Nt[,Year2017])
 Nt<-(na.omit(as.numeric(Nt)))
 mean(Nt)
 CIs(Nt, 0.95)
 
-# 3. calculate the confidence interval of lambda for across replications at the year 2017
+#COLUMN 5, TABLE 3
+# 3. calculate the year, and confidence interval of lambda for across replications at the year 2017
 vector <- scenario$Lambda[,Year2017]
 mean(vector)
 CIs(vector, 0.95)
 
+#COLUMN 6, TABLE 3
 # 4. calculate the confifence intevals for the year of quasi-extinction
 # Make a vector of all the years where an extinction showed up within the simulations:
 ext <- ExtinctionDates(scenario$Nt)
 # now calculate the 95%CI for this vector, and their means
 Yearsext<-as.vector(ext$Year[ext$EXTINCT == "TRUE"])
+# this is the first year where herd quasi-extinction occurred
+minYear<-min(Yearsext)
+message('this is the first year where Nt adult females < 10: ', minYear)
+
+
+# this is the averaged year of lambdas less than 1 - not currently included in Table 3
 mean(Yearsext)
 CIs(Yearsext, 0.95)
 
 
-# TODO: repeat this for all other Simulations (i.e. Experiments 1 through 6) by substitution out the scenario line for each
+#repeat this for all other Simulations (i.e. Experiments 1 through 6) by substitution out the scenario line for each
+# SCENARIOS INCLUDE:
+#WSA_Reg, WSA_-Dens, WSA_+Fire, WSA_++Fire, WSA_0Ind, WSA_0Ind++Fire
+# same for: RE_, CL, LS, and CM_
+
+
+
+
 
