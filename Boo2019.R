@@ -15,12 +15,12 @@ defineModule(sim, list(
               person(c("Steve", ""), "Cumming", email = "stevec@sbf.ulaval.ca", role = c("aut", "cre"))),
   childModules = character(0),
   version = list(SpaDES.core = "0.2.5", Boo2019 = "0.0.1"),
-  spatialExtent = raster::extent(rep(NA_real_, 4)),
-  timeframe = as.POSIXlt(c(NA, NA)),
+  spatialExtent = raster::extent(rep(NA_real_, 4)), # not needed
+  timeframe = as.POSIXlt(c(NA, NA)), # not needed
   timeunit = "year",
-  citation = list("citation.bib"),
+  citation = list("citation.bib"), 
   documentation = list("README.txt", "Boo2019.Rmd"),
-  reqdPkgs = list(),
+  reqdPkgs = list(sp, R.utils, dplyr),
   parameters = rbind(
     #defineParameter("paramName", "paramClass", value, min, max, "parameter description"),
     defineParameter(".plotInitialTime", "numeric", NA, NA, NA, "This describes the simulation time at which the first plot event should occur"),

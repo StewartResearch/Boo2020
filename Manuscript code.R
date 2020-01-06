@@ -25,8 +25,8 @@ Herd = CM
 # Code for CLAWR is an exception - see code for this herd before, as it is mashed from a few different data files.
 
 # for CLAWR ##
-Herd = CLAWR
-Area = f.clawr$AREA_HERD[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
+#Herd = CLAWR
+#Area = f.clawr$AREA_HERD[1]/100 # in ha. Divide by 100 to get km^2 (which is presented in Table 1)
 
 # STEP 1: re-calculate the cummulative burn for each year, as this was not originally provided. Run the function from
 Herd2 <- Burn_F(Herd$all.data, lagYears = 50, colToUse = "PROP_BURN", startYear = 1940)
@@ -52,7 +52,7 @@ Herd2$HOOF[Herd2$YEAR == 2006] # 2006 IND footprint
 setwd("Z:/GitHub/Boo2019")
 caribou<-read.csv("data/CaribouLambda.csv", header = T)
 setwd("outputs")
-caribouHerd<-na.omit(subset(caribou, caribou$herd == "Little_Smoky")) 
+caribouHerd<-na.omit(subset(caribou, caribou$herd == "Caribou_Mountains")) 
 # TODO: CHANGE FOR EACH HERD
 SadF_Herd<-mean(caribouHerd$Adult_Female_Survival)/100 # Adult female survival
 Rec_Herd<-mean(caribouHerd$Calf_Recruitment)/100 # Juvenile recruitment - TODO should this number be 1/2?
@@ -88,7 +88,7 @@ Herdruns<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
 
 # plot this scenario (regular scenario). Change names to reflect the herd that you have run.
 #pdf("WSA_Reg.pdf", height = 5, width  = 4)
-pLambda(Herdruns, "Reg")
+#pLambda(Herdruns, "Reg")
 #dev.off()
 #saveRDS(Herdruns, "CL_RS.rds") - example of how to save these objects.
 
@@ -104,7 +104,7 @@ IND = IND # inustrial footprint stays the same as the RS scenario
 HerdScenarioS_LD<- ScenarioS_F(Area, Regime, IND, Density = 0.04)# Set Simfire  = TRUE, FALSE, TRUE (empirical data from 1940-2007)
 Herdruns_LD<-MCRUNS_F(Area, Regime, IND, Density = 0.04)
 #pdf("WSA_LD.pdf", height = 5, width  = 4)
-pLambda(Herdruns_LD, "-Dens") # change name to reflect the herd you've just run
+#pLambda(Herdruns_LD, "-Dens") # change name to reflect the herd you've just run
 #dev.off()
 
 # EXPERIMENT 3: MB (+Fire) - increase fire burn rate to 0.01 (ScenarioS and MCRUNS) throughout simulations
@@ -117,7 +117,7 @@ IND = Herd2$HOOF[(1940-1917 +1):length(Herd2$HOOF)-1]  # inustrial footprint sta
 HerdScenarioS_MB<- ScenarioS_F(Area, Regime, IND, Density = 0.06)# Simfire  = TRUE, TRUE, TRUE (no empirical data)
 Herdruns_MB<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
 #pdf("WSA_LB.pdf", height = 5, width  = 4)
-pLambda(Herdruns_MB, "+Fire") # change name to reflect the herd you've just run
+#pLambda(Herdruns_MB, "+Fire") # change name to reflect the herd you've just run
 #dev.off()
 
 # EXPERIMENT 4: HB (++Fire) - increase fire burn rate to 0.016
@@ -130,7 +130,7 @@ IND = Herd2$HOOF[(1940-1917 +1):length(Herd2$HOOF)-1]  # inustrial footprint sta
 HerdScenarioS_HB<- ScenarioS_F(Area, Regime, IND, Density = 0.06)# Simfire  = TRUE, TRUE, TRUE (no empirical data)
 Herdruns_HB<-MCRUNS_F(Area, Regime, IND, Density = 0.06)
 #pdf("WSA_HB.pdf", height = 5, width  = 4)
-pLambda(Herdruns_HB, "++Fire") # change name to reflect the herd you've just run
+#pLambda(Herdruns_HB, "++Fire") # change name to reflect the herd you've just run
 #dev.off()
 
 #Experiment 5: NI (0Ind) - no industry. Set IND to zero in regular scenario
@@ -143,7 +143,7 @@ IND = rep(0, 69) # set Industry to 0 for the 69 years that we have data
 HerdScenarioS_NI<- ScenarioS_F(Area, Regime, IND, Density = 0.06)# Simfire  = TRUE, FALSE, TRUE (empirical data from 1940-2007)
 Herdruns_NI<-MCRUNS_F(Area, Regime, IND = rep(0, 69), Density = 0.06)
 #pdf("WSA_NI.pdf", height = 5, width  = 4)
-pLambda(Herdruns_NI, "0Ind")
+#pLambda(Herdruns_NI, "0Ind")
 #dev.off()
 
 #Experiment 6: NIHB (0Ind++Fire) - no industry, but a high burn rate (60 year fire return interval)
@@ -156,31 +156,31 @@ IND = rep(0, 69) # # set Industry to 0 for the 69 years that we have data
 HerdScenarioS_NIHB<- ScenarioS_F(Area, Regime, IND, Density = 0.06)# Simfire  = TRUE, FALSE, TRUE (empirical data from 1940-2007)
 Herdruns_NIHB<-MCRUNS_F(Area, Regime, IND = rep(0, 69), Density = 0.06)
 #pdf("WSA_NI.pdf", height = 5, width  = 4)
-pLambda(Herdruns_NIHB, "0Ind++Fire")
+#pLambda(Herdruns_NIHB, "0Ind++Fire")
 #dev.off()
 
 ###########################################################################################################################
 # Create a file of all Herd graphs (In preparation for Figure 2) ----
 pdf("CL_graphs2.pdf", height = 4, width = 5, onefile = TRUE) 
 # TODO: Change name of herds for which ever herd you have just run above
-Fires(Herd2, "Annual Proportion Area Burned")
-pHoof(Herd2, "Cummulative Intustrial Footprint")
-pLambda(Herdruns, "Reg")
-pLambda(Herdruns_LD, "-Dens")
-pLambda(Herdruns_MB, "+Fire")
-pLambda(Herdruns_HB, "++Fire")
-pLambda(Herdruns_NI, "0Ind") # no industry, and observed burns
-pLambda(Herdruns_NIHB, "0Ind++Fire") # no industry and high burns
-dev.off()
+# Fires(Herd2, "Annual Proportion Area Burned")
+# pHoof(Herd2, "Cummulative Intustrial Footprint")
+# pLambda(Herdruns, "Reg")
+# pLambda(Herdruns_LD, "-Dens")
+# pLambda(Herdruns_MB, "+Fire")
+# pLambda(Herdruns_HB, "++Fire")
+# pLambda(Herdruns_NI, "0Ind") # no industry, and observed burns
+# pLambda(Herdruns_NIHB, "0Ind++Fire") # no industry and high burns
+# dev.off()
 
 #Save all simulations as rds objects so that they can be used in future
 # TODO: change the herd name in the label of each
-saveRDS(Herdruns, file = "CL_Reg.rds")
-saveRDS(Herdruns_LD, file = "CL_-Dens.rds")
-saveRDS(Herdruns_MB, file = "CL_+Fire.rds")
-saveRDS(Herdruns_HB, file = "CL_++Fire.rds")
-saveRDS(Herdruns_NI, file = "CL_0Ind.rds")
-saveRDS(Herdruns_NIHB, file = "CL_0Ind++Fire.rds")
+saveRDS(Herdruns, file = "CM_Reg.rds")
+saveRDS(Herdruns_LD, file = "CM_-Dens.rds")
+saveRDS(Herdruns_MB, file = "CM_+Fire.rds")
+saveRDS(Herdruns_HB, file = "CM_++Fire.rds")
+saveRDS(Herdruns_NI, file = "CM_0Ind.rds")
+saveRDS(Herdruns_NIHB, file = "CM_0Ind++Fire.rds")
 
 
 ############################################################################################################################
@@ -199,14 +199,15 @@ minYear<-min(YearsLam)
 message('this is the first year where lambda < 1.0: ', minYear)
 
 # this is the averaged year of lambdas less than 1 - not currently included in Table 3.
-# mean(YearsLam)
+#mean(YearsLam)
 # CIs(YearsLam, 0.95)
 
 #COLUMN 4, TABLE 3
 # 2. get the year, and confidence intervalls around Nt across all replications for 2017 - column 4, Table 3
 # for 2017 (year 180)
 2076-2017 # 2017 is 59 years prior to the end of the simulation
-Year2017<-239-59 # all lambda estimates (300 of them from the simulation) for year 2017
+#Year2017<-239-59 # all lambda estimates (300 of them from the simulation) for year 2017
+Year2017 <-239-40
 Nt<-as.vector(scenario$Nt[,Year2017])
 Nt<-(na.omit(as.numeric(Nt)))
 mean(Nt)
@@ -238,8 +239,24 @@ CIs(Yearsext, 0.95)
 # SCENARIOS INCLUDE:
 #WSA_Reg, WSA_-Dens, WSA_+Fire, WSA_++Fire, WSA_0Ind, WSA_0Ind++Fire
 # same for: RE_, CL, LS, and CM_
+#######################################################################
 
+# For RE I had to pull directly from Tati's lambda table for the lambda values. N values (and QE value)
+# are based on the above RDS files:
+lambdaTableAllScenarios_V3
+lambdaTable<-lambdaTableAllScenarios_V3[herd %in% 'RE']
+scenario <- lambdaTable[scenario %in% '0Ind++Fire']
 
+scenario$mean
 
+# # these are the years where lambda is less than 1
+YearsLam<-as.vector(scenario$mean[scenario$mean < 1.0])
+length(YearsLam)
+2076-length(YearsLam)
+# this is the first year where lambda was less than 1
+message('this is the first year where lambda < 1.0: ', 2076-length(YearsLam))
+
+# lambda and CIs in 2017
+scenario[year %in% 2017]
 
 
